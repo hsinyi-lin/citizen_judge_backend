@@ -16,7 +16,7 @@ class Account(models.Model):
     birth = models.DateField()
     job = models.ForeignKey('Job', models.DO_NOTHING)
     picture = models.ForeignKey('Picture', models.DO_NOTHING)
-    is_notification = models.IntegerField(blank=True, null=True)
+    is_notification = models.IntegerField(blank=True, default=True)
     is_quiz = models.IntegerField(blank=True, null=True)
     code = models.CharField(max_length=8, blank=True, null=True)
 
