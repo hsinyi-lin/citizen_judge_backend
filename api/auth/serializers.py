@@ -8,4 +8,4 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['email', 'name', 'password', 'gender', 'birth', 'job_id', 'picture_id', 'is_notification']
+        fields = ['email', 'name', 'password', 'gender', 'birth', 'job_id', 'picture_id']
