@@ -18,7 +18,6 @@ class Account(models.Model):
     picture = models.ForeignKey('Picture', models.DO_NOTHING)
     is_notification = models.IntegerField(blank=True, default=True)
     is_quiz = models.IntegerField(blank=True, null=True)
-    code = models.CharField(max_length=8, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -161,3 +160,13 @@ class Verdict(models.Model):
     class Meta:
         managed = False
         db_table = 'verdict'
+
+
+class VerificationCode(models.Model):
+    email = models.CharField(max_length=100)
+    code = models.CharField(max_length=8)
+    create_time = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'verification_code'
