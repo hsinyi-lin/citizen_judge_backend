@@ -1,20 +1,22 @@
-import hashlib
-import random
-import string
-from email.mime.text import MIMEText
+import hashlib, random, string
 
+from datetime import datetime
+
+from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.auth.serializers import *
 
 from api.models import *
+from core import settings
+
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     data = request.data
 
@@ -65,3 +67,26 @@ def login(request):
         'access_token': access_token,
     })
 
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def send_code(request):
+    data = request.data
+    email = data.get('email')
+
+    letters = string.ascii_letters + string.digits
+    code = ''.join(random.choice(letters) for i in range(8))
+
+    subject = 'Verification Code'
+    message = f'您的驗證碼為: {code}'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, from_email, recipient_list)
+
+    VerificationCode.objects.create(email=email, code=code, create_time=datetime.now())
+
+    return Response({
+        'success': True,
+        'message': '已發送驗證碼至您的信箱'
+    })
