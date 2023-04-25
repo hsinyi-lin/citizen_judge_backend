@@ -65,7 +65,7 @@ def login(request):
     return Response({
         'success': True,
         'access_token': access_token,
-    })
+    }, status=status.HTTP_200_OK)
 
 
 
@@ -89,4 +89,5 @@ def send_code(request):
     return Response({
         'success': True,
         'message': '已發送驗證碼至您的信箱'
+    }, status=status.HTTP_200_OK)
     })
