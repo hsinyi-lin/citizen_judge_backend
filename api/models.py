@@ -11,7 +11,7 @@ from django.db import models
 class Account(models.Model):
     email = models.CharField(primary_key=True, max_length=100)
     name = models.CharField(max_length=50)
-    password = models.CharField(max_length=20)
+    password = models.TextField()
     gender = models.CharField(max_length=1)
     birth = models.DateField()
     job = models.ForeignKey('Job', models.DO_NOTHING)
