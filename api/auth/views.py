@@ -68,7 +68,6 @@ def login(request):
     }, status=status.HTTP_200_OK)
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_code(request):
@@ -90,4 +89,23 @@ def send_code(request):
         'success': True,
         'message': '已發送驗證碼至您的信箱'
     }, status=status.HTTP_200_OK)
-    })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_code(request):
+    data = request.data
+    email = data.get('email')
+    code = data.get('code')
+
+    user_codes = VerificationCode.objects.filter(email=email).order_by('-id')
+    if user_codes.exists() and user_codes.first().code == code:
+        return Response({
+            'success': True,
+            'message': '驗證成功'
+        }, status=status.HTTP_200_OK)
+
+    return Response({
+        'success': False,
+        'message': '驗證碼錯誤'
+    }, status=status.HTTP_404_NOT_FOUND)
