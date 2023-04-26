@@ -10,7 +10,7 @@ class CustomJWTAuthentication(JWTAuthentication):
         try:
             return Account.objects.get(email=validated_token['user_id'])
         except Account.DoesNotExist:
-            raise InvalidToken('User not found')
+            raise InvalidToken
 
     def authenticate(self, request):
         auth_header = self.get_header(request)
@@ -23,7 +23,7 @@ class CustomJWTAuthentication(JWTAuthentication):
         user = self.get_user(validated_token)
 
         if user is None:
-            raise AuthenticationFailed('User not found')
+            raise AuthenticationFailed
 
         user.is_authenticated = True
         request.user_id = validated_token['user_id']
