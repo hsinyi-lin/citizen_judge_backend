@@ -62,3 +62,26 @@ def like_verdict(request):
     }, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST'])
+def unlike_verdict(request):
+    data = request.data
+
+    verdict_id = data.get('verdict_id')
+    email = request.user_id
+
+    like = Like.objects.filter(verdict_id=verdict_id, email_id=email)
+
+    if not like.exists():
+        return Response({
+            'success': False,
+            'message': '已收回讚'
+        }, status=status.HTTP_410_GONE)
+
+    like.delete()
+
+    return Response({
+        'success': True,
+        'message': '成功'
+    }, status=status.HTTP_200_OK)
+
+
