@@ -52,7 +52,7 @@ def like_verdict(request):
         Like.objects.create(verdict_id=verdict_id, email_id=email)
     except IntegrityError:
         return Response({
-            'success': True,
+            'success': False,
             'message': '已按讚過'
         }, status=status.HTTP_409_CONFLICT)
 
