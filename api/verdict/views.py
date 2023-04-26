@@ -1,3 +1,5 @@
+from django.db import IntegrityError
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -37,3 +39,26 @@ def get_verdict_content(request):
             'recommendations': []
         }
     })
+
+
+@api_view(['POST'])
+def like_verdict(request):
+    data = request.data
+
+    verdict_id = data.get('verdict_id')
+    email = request.user_id
+
+    try:
+        Like.objects.create(verdict_id=verdict_id, email_id=email)
+    except IntegrityError:
+        return Response({
+            'success': True,
+            'message': '已按讚過'
+        }, status=status.HTTP_409_CONFLICT)
+
+    return Response({
+        'success': True,
+        'message': '成功'
+    }, status=status.HTTP_201_CREATED)
+
+
