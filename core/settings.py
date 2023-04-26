@@ -91,7 +91,7 @@ DATABASES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.token.CustomJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -103,7 +103,6 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'email',
     'PAYLOAD_ID_FIELD': 'email',
 }
-
 
 
 # Password validation
