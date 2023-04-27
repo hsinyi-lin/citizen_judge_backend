@@ -5,11 +5,16 @@ from rest_framework.response import Response
 
 
 def custom_exception_handler(exc, context):
+    response_data = {'success': False}
     if isinstance(exc, InvalidToken):
-        print({'success': False, 'message': '無效的token'})
+        response_data['message'] = '無效的token'
     elif isinstance(exc, AuthenticationFailed):
-        print({'success': False, 'message': '權限錯誤'})
+        response_data['message'] = '權限錯誤'
     elif isinstance(exc, NotAuthenticated):
-        print({'success': False, 'message': 'token遺失'})
+        response_data['message'] = 'token遺失'
+    else:
+        response_data['message'] = '錯誤'
 
-    return Response({'success': False, 'message': '請重新登入'}, status=401)
+    print(exc)
+
+    return Response(response_data, status=401)
