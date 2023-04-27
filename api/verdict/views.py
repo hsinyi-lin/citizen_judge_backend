@@ -122,7 +122,7 @@ def like_verdict(request):
     except IntegrityError:
         return error_response(message='已按過讚', status_code=status.HTTP_409_CONFLICT)
 
-    return success_response(status_code=status.HTTP_201_CREATED)
+    return success_response(message='成功', status_code=status.HTTP_201_CREATED)
 
 
 @api_view(['DELETE'])
@@ -139,4 +139,4 @@ def unlike_verdict(request):
 
     like.delete()
 
-    return success_response()
+    return success_response(message='成功')
