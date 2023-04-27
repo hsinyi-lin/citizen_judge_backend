@@ -87,7 +87,6 @@ class Like(models.Model):
 
 class Picture(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=10)
     photo = models.TextField()
 
     class Meta:
