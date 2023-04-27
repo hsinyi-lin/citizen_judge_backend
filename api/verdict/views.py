@@ -89,6 +89,31 @@ def filter_verdicts(request):
     })
 
 
+@api_view(['GET'])
+def get_crime_verdicts(request):
+    data = request.query_params
+
+    crime_id = data.get('crime_id')
+
+    verdicts = Verdict.objects.filter(crime_id=crime_id)
+
+    return Response({
+        'success': True,
+        'data': [
+            {
+                'verdict_id': verdict.id,
+                'title': verdict.title,
+                'judgement_date': verdict.judgement_date,
+                'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
+                'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
+                'crime_id': verdict.crime.id,
+                'crime_type': verdict.crime.name
+            }
+            for verdict in verdicts
+        ]
+    })
+
+
 @api_view(['POST'])
 def like_verdict(request):
     data = request.data
