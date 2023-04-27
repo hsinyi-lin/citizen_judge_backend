@@ -135,7 +135,7 @@ def like_verdict(request):
     }, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
+@api_view(['DELETE'])
 def unlike_verdict(request):
     data = request.data
 
