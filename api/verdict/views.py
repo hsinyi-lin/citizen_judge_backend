@@ -28,6 +28,7 @@ def get_verdict_content(request):
             'sub_title': verdict.sub_title,
             'ver_title': verdict.ver_title,
             'judgement_date': verdict.judgement_date,
+            'incident': verdict.incident,
             'result': verdict.result,
             'laws': verdict.laws,
             'url': verdict.url,
