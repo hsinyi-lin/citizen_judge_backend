@@ -46,7 +46,7 @@ def login(request):
 
     user = Account.objects.filter(email=data['email'], password=password_hash)
     if not user.exists():
-        error_response(message='帳號或密碼錯誤')
+        return error_response(message='帳號或密碼錯誤')
 
     user = user.first()
 
@@ -56,7 +56,7 @@ def login(request):
     # decoded_token = jwt.decode(access_token, verify=False)
     # print(decoded_token)
 
-    return Response({'success': True, 'access_token': access_token}, status=status.HTTP_200_OK)
+    return Response({'success': True, 'message': '登入成功', 'access_token': access_token}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
