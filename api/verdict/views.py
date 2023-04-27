@@ -155,3 +155,20 @@ def collect_verdict(request):
         return error_response(message='已收藏', status_code=status.HTTP_409_CONFLICT)
 
     return success_response(message='成功', status_code=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+def uncollect_verdict(request):
+    data = request.data
+
+    verdict_id = data.get('verdict_id')
+    email = request.user_id
+
+    saved = Saved.objects.filter(verdict_id=verdict_id, email_id=email)
+
+    if not saved.exists():
+        return error_response(message='已取消收藏', status_code=status.HTTP_410_GONE)
+
+    saved.delete()
+
+    return success_response(message='成功')

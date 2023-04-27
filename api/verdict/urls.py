@@ -9,4 +9,5 @@ urlpatterns = [
     path('like_verdict/', like_verdict, name='like_verdict'),
     path('unlike_verdict/', unlike_verdict, name='unlike_verdict'),
     path('collect_verdict/', collect_verdict, name='collect_verdict'),
+    path('uncollect_verdict/', uncollect_verdict, name='uncollect_verdict'),
 ]
