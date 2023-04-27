@@ -140,3 +140,18 @@ def unlike_verdict(request):
     like.delete()
 
     return success_response(message='成功')
+
+
+@api_view(['POST'])
+def collect_verdict(request):
+    data = request.data
+
+    verdict_id = data.get('verdict_id')
+    email = request.user_id
+
+    try:
+        Saved.objects.create(verdict_id=verdict_id, email_id=email)
+    except IntegrityError:
+        return error_response(message='已收藏', status_code=status.HTTP_409_CONFLICT)
+
+    return success_response(message='成功', status_code=status.HTTP_201_CREATED)
