@@ -43,6 +43,8 @@ def get_verdict(request):
 
 
 @api_view(['GET'])
+def get_verdicts(request):
+    verdicts = Verdict.objects.all()
 
     return Response({
         'success': True,
