@@ -7,7 +7,7 @@ from api.models import *
 
 
 @api_view(['GET'])
-def get_verdict_content(request):
+def get_verdict(request):
     data = request.query_params
 
     verdict_id = data.get('verdict_id')
