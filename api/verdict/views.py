@@ -43,13 +43,33 @@ def get_verdict_content(request):
 
 
 @api_view(['GET'])
-def get_verdict_contents(request):
+def filter_verdicts(request):
     data = request.query_params
 
     title = data.get('title').strip()
     # email = request.user_id
 
     verdicts = Verdict.objects.filter(title__icontains=title).order_by('-judgement_date')
+
+    return Response({
+        'success': True,
+        'data': [
+            {
+                'verdict_id': verdict.id,
+                'title': verdict.title,
+                'judgement_date': verdict.judgement_date,
+                'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
+                'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
+                'crime_id': verdict.crime.id,
+                'crime_type': verdict.crime.name
+            }
+            for verdict in verdicts
+        ]
+    })
+
+@api_view(['GET'])
+def get_verdicts(request):
+    verdicts = Verdict.objects.all.order_by('-judgement_date')
 
     return Response({
         'success': True,
