@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import exception_handler
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -12,9 +13,8 @@ def custom_exception_handler(exc, context):
         response_data['message'] = '權限錯誤'
     elif isinstance(exc, NotAuthenticated):
         response_data['message'] = 'token遺失'
-    else:
-        response_data['message'] = '錯誤'
 
     print(exc)
 
-    return Response(response_data, status=401)
+    if 'message' in response_data:
+        return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
