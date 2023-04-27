@@ -43,6 +43,25 @@ def get_verdict(request):
 
 
 @api_view(['GET'])
+
+    return Response({
+        'success': True,
+        'data': [
+            {
+                'verdict_id': verdict.id,
+                'title': verdict.title,
+                'judgement_date': verdict.judgement_date,
+                'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
+                'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
+                'crime_id': verdict.crime.id,
+                'crime_type': verdict.crime.name
+            }
+            for verdict in verdicts
+        ]
+    })
+
+
+@api_view(['GET'])
 def filter_verdicts(request):
     data = request.query_params
 
@@ -62,32 +81,6 @@ def filter_verdicts(request):
                 'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
                 'crime_id': verdict.crime.id,
                 'crime_type': verdict.crime.name
-            }
-            for verdict in verdicts
-        ]
-    })
-
-@api_view(['GET'])
-def get_verdicts(request):
-    verdicts = Verdict.objects.all.order_by('-judgement_date')
-
-    return Response({
-        'success': True,
-        'data': [
-            {
-                'verdict_id': verdict.id,
-                'title': verdict.title,
-                'sub_title': verdict.sub_title,
-                'ver_title': verdict.ver_title,
-                'judgement_date': verdict.judgement_date,
-                'result': verdict.result,
-                'laws': verdict.laws,
-                'url': verdict.url,
-                'crime_id': verdict.crime.id,
-                'crime_type': verdict.crime.name,
-                'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
-                'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
-                'create_time': verdict.create_time,
             }
             for verdict in verdicts
         ]
