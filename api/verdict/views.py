@@ -41,6 +41,38 @@ def get_verdict_content(request):
     })
 
 
+@api_view(['GET'])
+def get_verdict_contents(request):
+    data = request.query_params
+
+    title = data.get('title').strip()
+    # email = request.user_id
+
+    verdicts = Verdict.objects.filter(title__icontains=title).order_by('-judgement_date')
+
+    return Response({
+        'success': True,
+        'data': [
+            {
+                'verdict_id': verdict.id,
+                'title': verdict.title,
+                'sub_title': verdict.sub_title,
+                'ver_title': verdict.ver_title,
+                'judgement_date': verdict.judgement_date,
+                'result': verdict.result,
+                'laws': verdict.laws,
+                'url': verdict.url,
+                'crime_id': verdict.crime.id,
+                'crime_type': verdict.crime.name,
+                'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
+                'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
+                'create_time': verdict.create_time,
+            }
+            for verdict in verdicts
+        ]
+    })
+
+
 @api_view(['POST'])
 def like_verdict(request):
     data = request.data
