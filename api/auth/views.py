@@ -2,16 +2,16 @@ import hashlib, random, string
 
 from datetime import datetime
 
+import jwt
 from django.core.mail import send_mail
-from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.auth.serializers import *
 
 from api.models import *
+from api.response_helpers import *
 from core import settings
 
 
@@ -21,10 +21,7 @@ def register(request):
     data = request.data
 
     if Account.objects.filter(email=data['email']).exists():
-        return Response({
-        'success': False,
-        'message': '已註冊過此帳號'
-    }, status=status.HTTP_409_CONFLICT)
+        return error_response(message='已註冊過此帳號', status_code=status.HTTP_409_CONFLICT)
 
     serializer = AccountSerializer(data=data)
     serializer.is_valid(raise_exception=True)
@@ -35,10 +32,7 @@ def register(request):
     serializer.validated_data['password'] = password_hash
     serializer.save()
 
-    return Response({
-        'success': True,
-        'message': '註冊成功'
-    }, status=status.HTTP_201_CREATED)
+    return success_response(message='註冊成功', status_code=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -52,20 +46,17 @@ def login(request):
 
     user = Account.objects.filter(email=data['email'], password=password_hash)
     if not user.exists():
-        return Response({
-            'success': False,
-            'message': '帳號或密碼錯誤'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        error_response(message='帳號或密碼錯誤')
 
     user = user.first()
 
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
 
-    return Response({
-        'success': True,
-        'access_token': access_token,
-    }, status=status.HTTP_200_OK)
+    # decoded_token = jwt.decode(access_token, verify=False)
+    # print(decoded_token)
+
+    return Response({'success': True, 'access_token': access_token}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -85,10 +76,7 @@ def send_code(request):
 
     VerificationCode.objects.create(email=email, code=code, create_time=datetime.now())
 
-    return Response({
-        'success': True,
-        'message': '已發送驗證碼至您的信箱'
-    }, status=status.HTTP_200_OK)
+    return success_response(message='已發送驗證碼至您的信箱', status_code=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -100,12 +88,6 @@ def verify_code(request):
 
     user_codes = VerificationCode.objects.filter(email=email).order_by('-id')
     if user_codes.exists() and user_codes.first().code == code:
-        return Response({
-            'success': True,
-            'message': '驗證成功'
-        }, status=status.HTTP_200_OK)
+        return success_response(message='驗證成功')
 
-    return Response({
-        'success': False,
-        'message': '驗證碼錯誤'
-    }, status=status.HTTP_404_NOT_FOUND)
+    return error_response(message='驗證碼錯誤', status_code=status.HTTP_404_NOT_FOUND)
