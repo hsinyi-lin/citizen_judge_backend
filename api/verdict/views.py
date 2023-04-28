@@ -138,7 +138,6 @@ def unlike_verdict(request):
         return error_response(message='已收回讚', status_code=status.HTTP_410_GONE)
 
     like.delete()
-
     return success_response(message='成功')
 
 
@@ -170,5 +169,4 @@ def uncollect_verdict(request):
         return error_response(message='已取消收藏', status_code=status.HTTP_410_GONE)
 
     saved.delete()
-
     return success_response(message='成功')
