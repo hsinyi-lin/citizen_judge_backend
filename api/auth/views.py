@@ -1,9 +1,9 @@
 import hashlib, random, string
-
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import jwt
 from django.core.mail import send_mail
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -74,7 +74,7 @@ def send_code(request):
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
 
-    VerificationCode.objects.create(email=email, code=code, create_time=datetime.now())
+    VerificationCode.objects.create(email=email, code=code)
 
     return success_response(message='已發送驗證碼至您的信箱', status_code=status.HTTP_201_CREATED)
 

@@ -5,7 +5,10 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
 
 
 class Account(models.Model):
@@ -29,7 +32,7 @@ class Comment(models.Model):
     verdict_id = models.IntegerField()
     email = models.ForeignKey(Account, models.DO_NOTHING, db_column='email')
     content = models.CharField(max_length=200)
-    create_time = models.DateTimeField(blank=True, null=True)
+    create_time = models.DateTimeField(default=timezone.now() + timedelta(hours=8))
     is_edit = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -109,7 +112,7 @@ class Reply(models.Model):
     comment = models.ForeignKey(Comment, models.DO_NOTHING)
     email = models.ForeignKey(Account, models.DO_NOTHING, db_column='email')
     content = models.CharField(max_length=200)
-    create_time = models.DateTimeField(blank=True, null=True)
+    create_time = models.DateTimeField(default=timezone.now() + timedelta(hours=8))
     is_edit = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -137,7 +140,7 @@ class Ver(models.Model):
     incident = models.TextField()
     result = models.TextField()
     laws = models.CharField(max_length=255, blank=True, null=True)
-    create_time = models.DateTimeField(blank=True, null=True)
+    create_time = models.DateTimeField(default=timezone.now() + timedelta(hours=8))
 
     class Meta:
         managed = False
@@ -154,7 +157,7 @@ class Verdict(models.Model):
     incident = models.TextField()
     result = models.TextField()
     laws = models.CharField(max_length=255, blank=True, null=True)
-    create_time = models.DateTimeField(blank=True, null=True)
+    create_time = models.DateTimeField(default=timezone.now() + timedelta(hours=8))
 
     class Meta:
         managed = False
@@ -164,7 +167,7 @@ class Verdict(models.Model):
 class VerificationCode(models.Model):
     email = models.CharField(max_length=100)
     code = models.CharField(max_length=8)
-    create_time = models.DateTimeField()
+    create_time = models.DateTimeField(default=timezone.now() + timedelta(hours=8))
 
     class Meta:
         managed = False
