@@ -18,7 +18,7 @@ from core import settings
 def register(request):
     data = request.data
 
-    if Account.objects.filter(email=data['email']).exists():
+    if Account.objects.filter(email=data['email'].strip()).exists():
         return error_response(message='已註冊過此帳號', status_code=status.HTTP_409_CONFLICT)
 
     serializer = AccountSerializer(data=data)
@@ -37,12 +37,14 @@ def register(request):
 @permission_classes([AllowAny])
 def login(request):
     data = request.data
+    email = data.get('email').strip()
+    password = data.get('password').strip()
 
     sha256 = hashlib.sha256()
-    sha256.update(data['password'].encode('utf-8'))
+    sha256.update(password.encode('utf-8'))
     password_hash = sha256.hexdigest()
 
-    user = Account.objects.filter(email=data['email'], password=password_hash)
+    user = Account.objects.filter(email=email, password=password_hash)
     if not user.exists():
         return error_response(message='帳號或密碼錯誤')
 
@@ -61,7 +63,10 @@ def login(request):
 @permission_classes([AllowAny])
 def send_code(request):
     data = request.data
-    email = data.get('email')
+    email = data.get('email').strip()
+
+    if Account.objects.filter(email=email).exists():
+        return error_response(message='已註冊過此帳號', status_code=status.HTTP_409_CONFLICT)
 
     letters = string.ascii_letters + string.digits
     code = ''.join(random.choice(letters) for i in range(8))
@@ -81,8 +86,8 @@ def send_code(request):
 @permission_classes([AllowAny])
 def verify_code(request):
     data = request.data
-    email = data.get('email')
-    code = data.get('code')
+    email = data.get('email').strip()
+    code = data.get('code').strip()
 
     user_codes = VerificationCode.objects.filter(email=email).order_by('-id')
     if user_codes.exists() and user_codes.first().code == code:
