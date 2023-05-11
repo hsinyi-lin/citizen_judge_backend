@@ -64,9 +64,16 @@ def login(request):
 def send_code(request):
     data = request.data
     email = data.get('email').strip()
+    is_forgot = bool(data['is_forgot'])
 
-    if Account.objects.filter(email=email).exists():
-        return error_response(message='已註冊過此帳號', status_code=status.HTTP_409_CONFLICT)
+    account = Account.objects.filter(email=email)
+
+    if is_forgot:
+        if not account.exists():
+            return error_response(message='此帳號未註冊過', status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        if account.exists():
+            return error_response(message='已註冊過此帳號', status_code=status.HTTP_409_CONFLICT)
 
     letters = string.ascii_letters + string.digits
     code = ''.join(random.choice(letters) for i in range(8))
