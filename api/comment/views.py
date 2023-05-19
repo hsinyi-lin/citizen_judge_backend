@@ -2,6 +2,8 @@ from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
 
+
+from django.core.exceptions import ObjectDoesNotExist
 from api.models import *
 from api.response_helpers import *
 
@@ -82,3 +84,56 @@ def edit_comment(request):
 
     return success_response(message='成功')
 
+
+@api_view(['POST'])
+def add_reply(request):
+    data = request.data
+
+    comment_id = data.get('comment_id')
+    email = request.user_id
+    content = data.get('content')
+
+    Reply.objects.create(comment_id=comment_id, email_id=email, content=content, is_edit=0)
+
+    return success_response(message='成功', status_code=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+def delete_reply(request):
+    data = request.data
+
+    reply_id = data.get('reply_id')
+    email = request.user_id
+
+    reply = Reply.objects.filter(id=reply_id, email_id=email)
+
+    if not reply.exists():
+        return error_response(message='找無此回覆', status_code=status.HTTP_410_GONE)
+
+    reply.delete()
+    return success_response(message='成功')
+
+
+@api_view(['POST'])
+def edit_reply(request):
+    data = request.data
+
+    reply_id = data.get('reply_id')
+    email = request.user_id
+    content = data.get('content')
+
+    try:
+        reply = Reply.objects.get(id=reply_id, email_id=email)
+    except ObjectDoesNotExist:
+        return error_response(message='回覆不存在')
+
+    reply.content = content
+    reply.is_edit = True
+    reply.save()
+
+    return success_response(message='成功')
+
+
+# 柏維 更改密碼
+# 乙萱 個人資料
+# 博程 留言+回覆(不用按讚)
