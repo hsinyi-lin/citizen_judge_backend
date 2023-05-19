@@ -64,7 +64,7 @@ def login(request):
 def send_code(request):
     data = request.data
     email = data.get('email').strip()
-    is_forgot = bool(data['is_forgot'])
+    is_forgot = bool(data['is_forgot_password'])
 
     account = Account.objects.filter(email=email)
 
