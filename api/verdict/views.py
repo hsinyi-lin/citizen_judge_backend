@@ -82,9 +82,14 @@ def filter_verdicts(request):
     data = request.query_params
 
     title = data.get('title').strip()
-    # email = request.user_id
+    page = int(data.get('page'))
 
-    verdicts = Verdict.objects.filter(title__icontains=title).order_by('-judgement_date')
+    page_size = 30
+
+    start_index = (page - 1) * page_size
+    end_index = page * page_size
+
+    verdicts = Verdict.objects.filter(title__icontains=title).order_by('-judgement_date')[start_index:end_index]
 
     data = [
         {
