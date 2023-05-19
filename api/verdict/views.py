@@ -112,8 +112,14 @@ def get_crime_verdicts(request):
     data = request.query_params
 
     crime_id = data.get('crime_id')
+    page = int(data.get('page'))
 
-    verdicts = Verdict.objects.filter(crime_id=crime_id)
+    page_size = 30
+
+    start_index = (page - 1) * page_size
+    end_index = page * page_size
+
+    verdicts = Verdict.objects.filter(crime_id=crime_id).order_by('-judgement_date')[start_index:end_index]
 
     data = [
         {
