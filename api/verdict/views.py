@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Count
 from rest_framework import status
 from rest_framework.decorators import api_view
 
@@ -42,16 +43,22 @@ def get_verdict(request):
 
 
 @api_view(['GET'])
-def get_latest_verdicts(request):
+def get_verdicts(request):
     data = request.query_params
 
+    is_latest = int(data.get('is_latest'))
     page = int(data.get('page'))
+
     page_size = 30
 
     start_index = (page - 1) * page_size
     end_index = page * page_size
 
-    verdicts = Verdict.objects.all().order_by('-judgement_date')[start_index:end_index]
+    if is_latest:
+        verdicts = Verdict.objects.all().order_by('-judgement_date')[start_index:end_index]
+    else:
+        verdicts = Verdict.objects.annotate(like_count=Count('like')).order_by('-like_count')[start_index:end_index]
+
     # total_count = verdicts.count()
 
     data = [
