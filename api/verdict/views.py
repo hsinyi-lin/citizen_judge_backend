@@ -42,8 +42,17 @@ def get_verdict(request):
 
 
 @api_view(['GET'])
-def get_verdicts(request):
-    verdicts = Verdict.objects.all()
+def get_latest_verdicts(request):
+    data = request.query_params
+
+    page = int(data.get('page'))
+    page_size = 30
+
+    start_index = (page - 1) * page_size
+    end_index = page * page_size
+
+    verdicts = Verdict.objects.all().order_by('-judgement_date')[start_index:end_index]
+    # total_count = verdicts.count()
 
     data = [
         {
