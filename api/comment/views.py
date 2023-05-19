@@ -43,33 +43,40 @@ def delete_comment(request):
 @api_view(['GET'])
 def get_comments(request):
     data = request.query_params
-
     verdict_id = data.get('verdict_id')
-    email = request.user_id
 
     comments = Comment.objects.filter(verdict_id=verdict_id)
-    data = [
-        {
-            "comment_id": comment.id.id,
+    data = []
+
+    for comment in comments:
+        replies = Reply.objects.filter(comment=comment)
+        reply_data = [
+            {
+                "reply_id": reply.id,
+                "reply_email": reply.email.pk,
+                "job": reply.email.job.name,
+                "reply": reply.content,
+                "reply_create_time": reply.create_time,
+                "reply_is_edited": reply.is_edit
+            }
+            for reply in replies
+        ]
+
+        comment_data = {
+            "comment_id": comment.id.pk,
             "comment_email": comment.email.email,
             "job": comment.email.job.name,
             "comment": comment.content,
             "comment_create_time": comment.create_time,
-            "replies": [
-                # "reply_id":
-                # "reply_email":
-                # "job":
-                # "reply":
-                # "reply_create_time":
-            ]
+            "replies": reply_data
         }
-        for comment in comments
-    ]
+
+        data.append(comment_data)
 
     return success_response(data=data)
 
 
-@api_view(['POST'])
+@api_view(['PATCH'])
 def edit_comment(request):
     data = request.data
 
@@ -114,7 +121,7 @@ def delete_reply(request):
     return success_response(message='成功')
 
 
-@api_view(['POST'])
+@api_view(['PATCH'])
 def edit_reply(request):
     data = request.data
 
