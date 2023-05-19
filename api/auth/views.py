@@ -53,7 +53,7 @@ def login(request):
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
 
-    # decoded_token = jwt.decode(access_token, verify=False)
+    # decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
     # print(decoded_token)
 
     return Response({'success': True, 'message': '登入成功', 'access_token': access_token}, status=status.HTTP_200_OK)
