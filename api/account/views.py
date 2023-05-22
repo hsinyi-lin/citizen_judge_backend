@@ -68,7 +68,7 @@ def edit_account(request):
 @permission_classes([AllowAny])
 def change_password(request):
     data = request.data
-    email = request.user_id
+    email = data.get('email')
 
     acc = Account.objects.get(email=email)
 
