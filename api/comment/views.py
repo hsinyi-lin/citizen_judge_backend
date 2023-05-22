@@ -32,11 +32,14 @@ def delete_comment(request):
     email = request.user_id
 
     comment = Comment.objects.filter(id=comment_id, email_id=email)
+    reply = Reply.objects.filter(comment_id=comment_id)
 
     if not comment.exists():
         return error_response(message='找無此留言', status_code=status.HTTP_410_GONE)
-
+    
+    reply.delete()
     comment.delete()
+
     return success_response(message='成功')
 
 
