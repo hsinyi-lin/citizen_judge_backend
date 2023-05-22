@@ -143,7 +143,3 @@ def edit_reply(request):
 
     return success_response(message='成功')
 
-
-# 柏維 更改密碼
-# 乙萱 個人資料
-# 博程 留言+回覆(不用按讚)
