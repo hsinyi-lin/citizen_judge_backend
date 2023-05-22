@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
 from api.models import *
-from api.response_helpers import success_response
+from api.response_helpers import *
 
 
 @api_view(['GET'])
@@ -65,9 +65,10 @@ def edit_account(request):
 
 
 @api_view(['PATCH'])
+@permission_classes([AllowAny])
 def change_password(request):
     data = request.data
-    email = request.user_id
+    email = data.get('email')
 
     acc = Account.objects.get(email=email)
 
