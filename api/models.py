@@ -155,6 +155,7 @@ class Verdict(models.Model):
     crime = models.ForeignKey(Crime, models.DO_NOTHING)
     url = models.TextField()
     incident = models.TextField()
+    incident_lite = models.TextField()
     result = models.TextField()
     laws = models.CharField(max_length=255, blank=True, null=True)
     create_time = models.DateTimeField(default=timezone.now() + timedelta(hours=8))
