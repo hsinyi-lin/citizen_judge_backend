@@ -3,6 +3,8 @@ import hashlib
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from api.models import *
 from api.response_helpers import *
 
@@ -86,7 +88,7 @@ def add_quiz(request):
     data = request.data['data']
     email = request.user_id
 
-    if len(data) != 10:
+    if len(data) != 5:
         return error_response(message='資料筆數不正確，應包含10筆資料', status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     for item in data:
