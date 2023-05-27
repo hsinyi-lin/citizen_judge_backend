@@ -135,3 +135,22 @@ def collect_list(request):
         return success_response(data=data_list)
     except ObjectDoesNotExist:
         return error_response(message='User not found', status_code=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def notice(request):
+    data = request.data
+    email = request.user_id
+    is_notification = data.get('is_notification')
+
+    if not data:
+        return Response({'message': '缺少"is_notification"。'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        acc = Account.objects.get(email=email)
+    except ObjectDoesNotExist:
+        return Response({'message': '帳戶不存在。'}, status_code=status.HTTP_400_BAD_REQUEST)
+
+    acc.is_notification = is_notification
+    acc.save()
+    return Response({'message': '成功'})
