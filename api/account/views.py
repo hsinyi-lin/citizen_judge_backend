@@ -104,3 +104,53 @@ def add_quiz(request):
     acc.is_quiz = 1
     acc.save()
     return success_response(message='成功')
+
+
+@api_view(['GET'])
+def collect_list(request):
+    email = request.user_id
+
+    try:
+        saves = Saved.objects.filter(email_id=email)
+        data_list = []
+        for save in saves:
+            try:
+                like_count = Like.objects.filter(verdict=save.verdict).count()
+                comment_count = Comment.objects.filter(verdict_id=save.verdict.id).count()
+            except ObjectDoesNotExist:
+                like_count = 0
+                comment_count = 0
+
+            data = {
+                'verdict_id': save.verdict.id,
+                'title': save.verdict.title,
+                'judgement_date': save.verdict.judgement_date,
+                'total_like': like_count,
+                'total_comment': comment_count,
+                'crime_id': save.verdict.crime.id,
+                'crime_type': save.verdict.crime.name
+            }
+            data_list.append(data)
+
+        return success_response(data=data_list)
+    except ObjectDoesNotExist:
+        return error_response(message='User not found', status_code=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def notice(request):
+    data = request.data
+    email = request.user_id
+    is_notification = data.get('is_notification')
+
+    if not data:
+        return Response({'message': '缺少"is_notification"。'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        acc = Account.objects.get(email=email)
+    except ObjectDoesNotExist:
+        return Response({'message': '帳戶不存在。'}, status_code=status.HTTP_400_BAD_REQUEST)
+
+    acc.is_notification = is_notification
+    acc.save()
+    return Response({'message': '成功'})
