@@ -10,5 +10,7 @@ urlpatterns = [
     path('delete_reply/', delete_reply, name='delete_reply'),
     path('edit_reply/', edit_reply, name='edit_reply'),
     path('add_like/', add_like, name='add_like'),
-    path('delete_like/', delete_like, name='delete_like')
+    path('delete_like/', delete_like, name='delete_like'),
+    path('add_dislike/', add_dislike, name='add_dislike'),
+    path('delete_dislike/', delete_dislike, name='delete_dislike')
 ]
