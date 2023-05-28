@@ -191,10 +191,8 @@ def delete_like(request):
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        comment_like = CommentLike.objects.filter(comment_id=comment_id, email_id=email)
-
-    except ObjectDoesNotExist:
+    comment_like = CommentLike.objects.filter(comment_id=comment_id, email_id=email)
+    if not comment_like:
         return error_response(message='找不到該筆資料', status_code=status.HTTP_404_NOT_FOUND)
 
     comment_like.delete()
