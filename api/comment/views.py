@@ -214,3 +214,21 @@ def delete_dislike(request):
 
     comment_dislike.delete()
     return success_response(message='成功')
+
+
+@api_view(['GET'])
+def likes(request):
+    data = request.query_params
+    comment_id = data.get('comment_id')
+
+    total = CommentLike.objects.filter(comment_id=comment_id).count()
+    return success_response(total)
+
+
+@api_view(['GET'])
+def dislikes(request):
+    data = request.query_params
+    comment_id = data.get('comment_id')
+
+    total = CommentDislike.objects.filter(comment_id=comment_id).count()
+    return success_response(total)
