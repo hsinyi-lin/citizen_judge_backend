@@ -8,5 +8,7 @@ urlpatterns = [
     path('edit_comment/', edit_comment, name='edit_comment'),
     path('add_reply/', add_reply, name='add_reply'),
     path('delete_reply/', delete_reply, name='delete_reply'),
-    path('edit_reply/', edit_reply, name='edit_reply')
+    path('edit_reply/', edit_reply, name='edit_reply'),
+    path('add_like/', add_like, name='add_like'),
+    path('delete_like/', delete_like, name='delete_like')
 ]
