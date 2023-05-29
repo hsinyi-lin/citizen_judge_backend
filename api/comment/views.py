@@ -103,6 +103,9 @@ def add_reply(request):
     email = request.user_id
     content = data.get('content')
 
+    if content is "":
+        return error_response(message='請輸入文字再回覆', status_code=status.HTTP_400_BAD_REQUEST)
+
     try:
         Reply.objects.create(comment_id=comment_id, email_id=email, content=content, is_edit=0)
     except:
