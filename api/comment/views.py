@@ -101,7 +101,13 @@ def add_reply(request):
     email = request.user_id
     content = data.get('content')
 
-    Reply.objects.create(comment_id=comment_id, email_id=email, content=content, is_edit=0)
+    if content is "":
+        return error_response(message='請輸入文字再回覆', status_code=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        Reply.objects.create(comment_id=comment_id, email_id=email, content=content, is_edit=0)
+    except:
+        return error_response(message='找無此留言所以無法回覆', status_code=status.HTTP_404_NOT_FOUND)
 
     return success_response(message='成功', status_code=status.HTTP_201_CREATED)
 
@@ -151,6 +157,10 @@ def add_like(request):
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
 
+    dislike = CommentDislike.objects.get(comment_id=comment_id, email_id=email)
+    if dislike:
+        dislike.delete()
+
     try:
         comment_like, created = CommentLike.objects.get_or_create(comment_id=comment_id, email_id=email)
         if created:
@@ -169,6 +179,10 @@ def add_dislike(request):
 
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
+
+    like = CommentLike.objects.get(comment_id=comment_id, email_id=email)
+    if like:
+        like.delete()
 
     try:
         comment_dislike, created = CommentDislike.objects.get_or_create(comment_id=comment_id, email_id=email)
