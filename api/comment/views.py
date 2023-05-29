@@ -34,7 +34,7 @@ def delete_comment(request):
 
     if not comment.exists():
         return error_response(message='找無此留言', status_code=status.HTTP_410_GONE)
-    
+
     reply.delete()
     comment.delete()
 
@@ -141,3 +141,92 @@ def edit_reply(request):
 
     return success_response(message='成功')
 
+
+@api_view(['POST'])
+def add_like(request):
+    data = request.data
+    comment_id = data.get('comment_id')
+    email = request.user_id
+
+    if not comment_id:
+        return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        comment_like, created = CommentLike.objects.get_or_create(comment_id=comment_id, email_id=email)
+        if created:
+            return success_response(message='成功')
+        else:
+            return error_response(message='CommentLike對象已存在', status_code=status.HTTP_409_CONFLICT)
+    except ObjectDoesNotExist:
+        return error_response(message='無法創建CommentLike對象', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def add_dislike(request):
+    data = request.data
+    comment_id = data.get('comment_id')
+    email = request.user_id
+
+    if not comment_id:
+        return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        comment_dislike, created = CommentDislike.objects.get_or_create(comment_id=comment_id, email_id=email)
+        if created:
+            return success_response(message='成功')
+        else:
+            return error_response(message='CommentDislike對象已存在', status_code=status.HTTP_409_CONFLICT)
+    except ObjectDoesNotExist:
+        return error_response(message='無法創建CommentDislike對象', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+def delete_like(request):
+    data = request.data
+    comment_id = data.get('comment_id')
+    email = request.user_id
+
+    if not comment_id:
+        return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
+
+    comment_like = CommentLike.objects.filter(comment_id=comment_id, email_id=email)
+    if not comment_like:
+        return error_response(message='找不到該筆資料', status_code=status.HTTP_404_NOT_FOUND)
+
+    comment_like.delete()
+    return success_response(message='成功')
+
+
+@api_view(['DELETE'])
+def delete_dislike(request):
+    data = request.data
+    comment_id = data.get('comment_id')
+    email = request.user_id
+
+    if not comment_id:
+        return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
+
+    comment_dislike = CommentDislike.objects.filter(comment_id=comment_id, email_id=email)
+    if not comment_dislike:
+        return error_response(message='找不到該筆資料', status_code=status.HTTP_404_NOT_FOUND)
+
+    comment_dislike.delete()
+    return success_response(message='成功')
+
+
+@api_view(['GET'])
+def likes(request):
+    data = request.query_params
+    comment_id = data.get('comment_id')
+
+    total = CommentLike.objects.filter(comment_id=comment_id).count()
+    return success_response(total)
+
+
+@api_view(['GET'])
+def dislikes(request):
+    data = request.query_params
+    comment_id = data.get('comment_id')
+
+    total = CommentDislike.objects.filter(comment_id=comment_id).count()
+    return success_response(total)
