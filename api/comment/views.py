@@ -153,6 +153,10 @@ def add_like(request):
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
 
+    dislike = CommentDislike.objects.get(comment_id=comment_id, email_id=email)
+    if dislike:
+        dislike.delete()
+
     try:
         comment_like, created = CommentLike.objects.get_or_create(comment_id=comment_id, email_id=email)
         if created:
@@ -171,6 +175,10 @@ def add_dislike(request):
 
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
+
+    like = CommentLike.objects.get(comment_id=comment_id, email_id=email)
+    if like:
+        like.delete()
 
     try:
         comment_dislike, created = CommentDislike.objects.get_or_create(comment_id=comment_id, email_id=email)
