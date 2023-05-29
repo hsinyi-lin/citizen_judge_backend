@@ -103,7 +103,10 @@ def add_reply(request):
     email = request.user_id
     content = data.get('content')
 
-    Reply.objects.create(comment_id=comment_id, email_id=email, content=content, is_edit=0)
+    try:
+        Reply.objects.create(comment_id=comment_id, email_id=email, content=content, is_edit=0)
+    except:
+        return error_response(message='找無此留言所以無法回覆', status_code=status.HTTP_404_NOT_FOUND)
 
     return success_response(message='成功', status_code=status.HTTP_201_CREATED)
 
