@@ -27,7 +27,6 @@ def picture_list(request):
 
 @api_view(['GET'])
 def get_account(request):
-    data = request.data
     email = request.user_id
 
     acc = Account.objects.get(email=email)
@@ -89,17 +88,14 @@ def add_quiz(request):
     email = request.user_id
 
     if len(data) != 5:
-        return error_response(message='資料筆數不正確，應包含10筆資料', status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return error_response(message='資料筆數不正確，應包含5筆資料', status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     for item in data:
         question_id = item.get('question_id')
         score = item.get('score')
         Quiz.objects.create(question_id=question_id, email_id=email, score=score)
 
-    try:
-        acc = Account.objects.get(email=email)
-    except Account.DoesNotExist:
-        return error_response(message='帳號不存在', status_code=status.HTTP_404_NOT_FOUND)
+    acc = Account.objects.get(email=email)
 
     acc.is_quiz = 1
     acc.save()
