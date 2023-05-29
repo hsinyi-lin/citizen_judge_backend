@@ -1,11 +1,9 @@
-from django.db import IntegrityError
-from rest_framework import status
 from rest_framework.decorators import api_view
 
 
 from django.core.exceptions import ObjectDoesNotExist
 from api.models import *
-from api.response_helpers import *
+from utils.response_helpers import *
 
 
 @api_view(['POST'])

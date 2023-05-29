@@ -96,12 +96,12 @@ DATABASES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'api.token.CustomJWTAuthentication',
+        'utils.token.CustomJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'EXCEPTION_HANDLER': 'api.handlers.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'utils.handlers.custom_exception_handler'
 }
 
 SIMPLE_JWT = {
