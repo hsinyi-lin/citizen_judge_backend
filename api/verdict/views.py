@@ -1,10 +1,9 @@
 from django.db import IntegrityError
 from django.db.models import Count
-from rest_framework import status
 from rest_framework.decorators import api_view
 
 from api.models import *
-from api.response_helpers import *
+from utils.response_helpers import *
 
 
 @api_view(['GET'])

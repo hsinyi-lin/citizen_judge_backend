@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from django.core.exceptions import ObjectDoesNotExist
 
 from api.models import *
-from api.response_helpers import *
+from utils.response_helpers import *
 
 
 @api_view(['GET'])
