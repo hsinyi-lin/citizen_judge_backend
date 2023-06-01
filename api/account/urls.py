@@ -8,5 +8,6 @@ urlpatterns = [
     path('change_password/', change_password, name='change_password'),
     path('add_quiz/', add_quiz, name='add_quiz'),
     path('collect_list/', collect_list, name='collect_list'),
-    path('notice/', notice, name='notice')
+    path('notice/', notice, name='notice'),
+    path('add_eazy_quiz/', add_eazy_quiz, name='add_eazy_quiz')
 ]

@@ -102,6 +102,25 @@ def add_quiz(request):
     return success_response(message='成功')
 
 
+@api_view(['POST'])
+def add_eazy_quiz(request):
+    data = request.data
+    email = request.user_id
+    question_id = data.get('question_id')
+    score = data.get('score')
+
+    if not (question_id and score):
+        return error_response(message='缺少必要的值')
+
+    Quiz.objects.create(question_id=question_id, email_id=email, score=score)
+
+    acc = Account.objects.get(email=email)
+
+    acc.is_quiz = 1
+    acc.save()
+    return success_response(message='成功')
+
+
 @api_view(['GET'])
 def collect_list(request):
     email = request.user_id
