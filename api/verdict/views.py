@@ -3,6 +3,7 @@ from django.db.models import Count
 from rest_framework.decorators import api_view
 
 from api.models import *
+from api.verdict.serializers import VerdictSerializer, CustomVerdictSerializer
 from utils.response_helpers import *
 
 
@@ -11,35 +12,12 @@ def get_verdict(request):
     data = request.query_params
 
     verdict_id = data.get('verdict_id')
-    # user_id = request.user_id
 
     verdict = Verdict.objects.get(id=verdict_id)
-    total_like = Like.objects.filter(verdict_id=verdict_id).count()
-    total_comment = Comment.objects.filter(verdict_id=verdict_id).count()
+    serializer = CustomVerdictSerializer(verdict)
+    serialized_data = serializer.data
 
-    # recommendations
-    # ....
-
-    data = {
-        'verdict_id': verdict.id,
-        'title': verdict.title,
-        'sub_title': verdict.sub_title,
-        'ver_title': verdict.ver_title,
-        'judgement_date': verdict.judgement_date,
-        'incident': verdict.incident.split('\n'),
-        'incident_lite': verdict.incident_lite,
-        'result': verdict.result.split('\n'),
-        'laws': verdict.laws.split(','),
-        'url': verdict.url,
-        'crime_id': verdict.crime.id,
-        'crime_type': verdict.crime.name,
-        'total_like': total_like,
-        'total_comment': total_comment,
-        'create_time': verdict.create_time,
-        'recommendations': []
-    }
-
-    return success_response(data=data)
+    return success_response(data=serialized_data)
 
 
 @api_view(['GET'])
@@ -59,22 +37,10 @@ def get_verdicts(request):
     else:
         verdicts = Verdict.objects.annotate(like_count=Count('like')).order_by('-like_count')[start_index:end_index]
 
-    # total_count = verdicts.count()
+    serializer = VerdictSerializer(verdicts, many=True)
+    serialized_data = serializer.data
 
-    data = [
-        {
-            'verdict_id': verdict.id,
-            'title': verdict.title,
-            'judgement_date': verdict.judgement_date,
-            'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
-            'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
-            'crime_id': verdict.crime.id,
-            'crime_type': verdict.crime.name
-        }
-        for verdict in verdicts
-    ]
-
-    return success_response(data=data)
+    return success_response(data=serialized_data)
 
 
 @api_view(['GET'])
@@ -91,20 +57,10 @@ def filter_verdicts(request):
 
     verdicts = Verdict.objects.filter(title__icontains=title).order_by('-judgement_date')[start_index:end_index]
 
-    data = [
-        {
-            'verdict_id': verdict.id,
-            'title': verdict.title,
-            'judgement_date': verdict.judgement_date,
-            'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
-            'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
-            'crime_id': verdict.crime.id,
-            'crime_type': verdict.crime.name
-        }
-        for verdict in verdicts
-    ]
+    serializer = VerdictSerializer(verdicts, many=True)
+    serialized_data = serializer.data
 
-    return success_response(data=data)
+    return success_response(data=serialized_data)
 
 
 @api_view(['GET'])
@@ -121,20 +77,10 @@ def get_crime_verdicts(request):
 
     verdicts = Verdict.objects.filter(crime_id=crime_id).order_by('-judgement_date')[start_index:end_index]
 
-    data = [
-        {
-            'verdict_id': verdict.id,
-            'title': verdict.title,
-            'judgement_date': verdict.judgement_date,
-            'total_like': Like.objects.filter(verdict_id=verdict.id).count(),
-            'total_comment': Comment.objects.filter(verdict_id=verdict.id).count(),
-            'crime_id': verdict.crime.id,
-            'crime_type': verdict.crime.name
-        }
-        for verdict in verdicts
-    ]
+    serializer = VerdictSerializer(verdicts, many=True)
+    serialized_data = serializer.data
 
-    return success_response(data=data)
+    return success_response(data=serialized_data)
 
 
 @api_view(['POST'])
