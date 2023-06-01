@@ -71,7 +71,7 @@ class Crime(models.Model):
 
 class Job(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=50)
 
     class Meta:
         managed = False
