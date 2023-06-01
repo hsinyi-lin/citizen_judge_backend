@@ -55,7 +55,7 @@ def login(request):
     # decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
     # print(decoded_token)
 
-    return Response({'success': True, 'message': '登入成功', 'access_token': access_token}, status=status.HTTP_200_OK)
+    return Response({'success': True, 'message': '登入成功', 'access_token': access_token, 'is_quiz': bool(user.is_quiz)}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
