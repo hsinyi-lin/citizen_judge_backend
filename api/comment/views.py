@@ -1,9 +1,15 @@
-from rest_framework.decorators import api_view
-
+import torch
+from rest_framework.decorators import api_view, permission_classes
+from transformers import BertTokenizer, BertModel
+from rest_framework.permissions import AllowAny
 
 from django.core.exceptions import ObjectDoesNotExist
 from api.models import *
 from utils.response_helpers import *
+from sklearn.decomposition import PCA
+
+tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
+model = BertModel.from_pretrained('bert-base-chinese')
 
 
 @api_view(['POST'])
@@ -244,3 +250,42 @@ def dislikes(request):
 
     total = CommentDislike.objects.filter(comment_id=comment_id).count()
     return success_response(total)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def scatter_plot(request):
+    comments = request.data.get('comments')
+
+    # 將留言轉換成向量
+    vectors = []
+    for comment in comments:
+        input_ids = tokenizer.encode(comment, add_special_tokens=True)
+        input_tensor = torch.tensor([input_ids])
+
+        with torch.no_grad():
+            outputs = model(input_tensor)
+            last_hidden_state = outputs.last_hidden_state
+
+        comment_vector = last_hidden_state.mean(dim=1).squeeze().tolist()
+        vectors.append(comment_vector)
+
+    # 使用PCA降維到二維空間
+    pca = PCA(n_components=2)
+    reduced_vectors = pca.fit_transform(vectors)
+
+    # X軸和Y軸坐标
+    x_coords = reduced_vectors[:, 0]
+    y_coords = reduced_vectors[:, 1]
+
+    # 結果
+    result = []
+    for i in range(len(comments)):
+        result.append({
+            'comment': comments[i],
+            'x': x_coords[i],
+            'y': y_coords[i]
+        })
+
+    return Response({'result': result})
+
