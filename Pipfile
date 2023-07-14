@@ -8,6 +8,9 @@ django = "*"
 djangorestframework = "*"
 mysqlclient = "*"
 django-cors-headers = "*"
+pandas = "*"
+scikit-learn = "*"
+numpy = "*"
 
 [dev-packages]
 
