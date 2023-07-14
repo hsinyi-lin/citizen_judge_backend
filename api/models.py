@@ -130,6 +130,23 @@ class Saved(models.Model):
         unique_together = (('verdict', 'email'),)
 
 
+class TheftFeature(models.Model):
+    id = models.OneToOneField('Verdict', models.DO_NOTHING, db_column='id', primary_key=True)
+    is_money_related = models.IntegerField(blank=True, null=True)
+    is_abandoned = models.IntegerField(blank=True, null=True)
+    is_indoor = models.IntegerField(blank=True, null=True)
+    is_destructive = models.IntegerField(blank=True, null=True)
+    is_group_crime = models.IntegerField(blank=True, null=True)
+    is_transportation_used = models.IntegerField(blank=True, null=True)
+    has_criminal_record = models.IntegerField(blank=True, null=True)
+    is_income_tool = models.IntegerField(blank=True, null=True)
+    month = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'theft_feature'
+
+
 class Ver(models.Model):
     title = models.CharField(max_length=45)
     sub_title = models.CharField(max_length=30)

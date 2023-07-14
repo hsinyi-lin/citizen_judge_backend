@@ -10,11 +10,12 @@ from utils.response_helpers import *
 @api_view(['GET'])
 def get_verdict(request):
     data = request.query_params
+    email = request.user_id
 
     verdict_id = data.get('verdict_id')
 
     verdict = Verdict.objects.get(id=verdict_id)
-    serializer = CustomVerdictSerializer(verdict)
+    serializer = CustomVerdictSerializer(verdict, context={'email': email})
     serialized_data = serializer.data
 
     return success_response(data=serialized_data)
