@@ -59,6 +59,24 @@ class CommentLike(models.Model):
         db_table = 'comment_like'
         unique_together = (('comment', 'email'),)
 
+        
+class CommentTheft(models.Model):
+    id = models.AutoField(primary_key=True)
+    comment = models.ForeignKey(Comment, models.DO_NOTHING, db_column='comment_id')
+    is_money_related = models.BooleanField()
+    is_abandoned = models.BooleanField()
+    is_indoor = models.BooleanField()
+    is_destructive = models.BooleanField()
+    is_group_crime = models.BooleanField()
+    is_transportation_used = models.BooleanField()
+    has_criminal_record = models.BooleanField()
+    is_income_tool = models.BooleanField()
+    month = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'comment_theft'
+
 
 class Crime(models.Model):
     id = models.IntegerField(primary_key=True)
