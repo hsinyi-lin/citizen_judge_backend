@@ -1,31 +1,49 @@
-# import torch
+import torch
+
 from rest_framework.decorators import api_view, permission_classes
-# from transformers import BertTokenizer, BertModel
-# from rest_framework.permissions import AllowAny
+from transformers import BertTokenizer, BertModel
+from rest_framework.permissions import AllowAny
 
 from django.core.exceptions import ObjectDoesNotExist
 from api.models import *
 from utils.response_helpers import *
-# from sklearn.decomposition import PCA
-#
-# tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
-# model = BertModel.from_pretrained('bert-base-chinese')
+from sklearn.decomposition import PCA
 
 
 @api_view(['POST'])
 def add_comment(request):
     data = request.data
 
+    # 從請求數據中獲取相關欄位資料
     verdict_id = data.get('verdict_id')
     email = request.user_id
     content = data.get('content')
+    is_money_related = data.get('is_money_related')
+    is_abandoned = data.get('is_abandoned')
+    is_indoor = data.get('is_indoor')
+    is_destructive = data.get('is_destructive')
+    is_group_crime = data.get('is_group_crime')
+    is_transportation_used = data.get('is_transportation_used')
+    has_criminal_record = data.get('has_criminal_record')
+    is_income_tool = data.get('is_income_tool')
+    month = data.get('month')
 
-    if Comment.objects.filter(verdict_id=verdict_id,email=email).exists():
-        return error_response(message='你已經留言過了')
+    # 檢查是否已經留言過
+    if Comment.objects.filter(verdict_id=verdict_id, email=email).exists():
+        return Response({'message': '你已經留言過了'}, status=status.HTTP_400_BAD_REQUEST)
 
+    # 創建 Comment 物件
     Comment.objects.create(verdict_id=verdict_id, email_id=email, content=content, is_edit=0)
 
-    return success_response(message='成功', status_code=status.HTTP_201_CREATED)
+    comment = Comment.objects.get(verdict_id=verdict_id, email_id=email)
+
+    # 創建 CommentTheft 物件，使用創建的 Comment 實例來賦值給 comment 欄位
+    CommentTheft.objects.create(comment=comment, is_money_related=is_money_related, is_abandoned=is_abandoned,
+                                is_indoor=is_indoor, is_destructive=is_destructive, is_group_crime=is_group_crime,
+                                is_transportation_used=is_transportation_used, has_criminal_record=has_criminal_record,
+                                is_income_tool=is_income_tool, month=month)
+
+    return Response({'message': '成功'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['DELETE'])
@@ -37,13 +55,15 @@ def delete_comment(request):
 
     comment = Comment.objects.filter(id=comment_id, email_id=email)
     reply = Reply.objects.filter(comment_id=comment_id)
+    comment_theft = CommentTheft.objects.filter(comment_id=comment_id)
 
     if not comment.exists():
         return error_response(message='找無此留言', status_code=status.HTTP_410_GONE)
 
     reply.delete()
+    comment_theft.delete()
     comment.delete()
-
+    
     return success_response(message='成功')
 
 
@@ -53,10 +73,12 @@ def get_comments(request):
     verdict_id = data.get('verdict_id')
 
     comments = Comment.objects.filter(verdict_id=verdict_id)
+
     data = []
 
     for comment in comments:
         replies = Reply.objects.filter(comment=comment)
+        theft = CommentTheft.objects.get(comment_id=comment)
         reply_data = [
             {
                 "reply_id": reply.id,
@@ -75,6 +97,15 @@ def get_comments(request):
             "job": comment.email.job.name,
             "comment": comment.content,
             "comment_create_time": comment.create_time,
+            "is_money_related": theft.is_money_related,
+            "is_abandoned": theft.is_abandoned,
+            "is_indoor": theft.is_indoor,
+            "is_destructive": theft.is_destructive,
+            "is_group_crime": theft.is_group_crime,
+            "is_transportation_used": theft.is_transportation_used,
+            "has_criminal_record": theft.has_criminal_record,
+            "is_income_tool": theft.is_income_tool,
+            "month": theft.month,
             "replies": reply_data
         }
 
@@ -88,13 +119,35 @@ def edit_comment(request):
     data = request.data
 
     verdict_id = data.get('verdict_id')
+    comment_id = data.get('comment_id')
     email = request.user_id
     content = data.get('content')
+    is_money_related = data.get('is_money_related')
+    is_abandoned = data.get('is_abandoned')
+    is_indoor = data.get('is_indoor')
+    is_destructive = data.get('is_destructive')
+    is_group_crime = data.get('is_group_crime')
+    is_transportation_used = data.get('is_transportation_used')
+    has_criminal_record = data.get('has_criminal_record')
+    is_income_tool = data.get('is_income_tool')
+    month = data.get('month')
 
     comment = Comment.objects.get(verdict_id=verdict_id, email_id=email)
     comment.content = content
     comment.is_edit = True
     comment.save()
+
+    theft = CommentTheft.objects.get(comment_id=comment_id)
+    theft.is_money_related = is_money_related
+    theft.is_abandoned = is_abandoned
+    theft.is_indoor = is_indoor
+    theft.is_destructive = is_destructive
+    theft.is_group_crime = is_group_crime
+    theft.is_transportation_used = is_transportation_used
+    theft.has_criminal_record = has_criminal_record
+    theft.is_income_tool = is_income_tool
+    theft.month = month
+    theft.save()
 
     return success_response(message='成功')
 
@@ -107,7 +160,7 @@ def add_reply(request):
     email = request.user_id
     content = data.get('content')
 
-    if content is "":
+    if content == "":
         return error_response(message='請輸入文字再回覆', status_code=status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -251,41 +304,4 @@ def dislikes(request):
     total = CommentDislike.objects.filter(comment_id=comment_id).count()
     return success_response(total)
 
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def scatter_plot(request):
-#     comments = request.data.get('comments')
-#
-#     # 將留言轉換成向量
-#     vectors = []
-#     for comment in comments:
-#         input_ids = tokenizer.encode(comment, add_special_tokens=True)
-#         input_tensor = torch.tensor([input_ids])
-#
-#         with torch.no_grad():
-#             outputs = model(input_tensor)
-#             last_hidden_state = outputs.last_hidden_state
-#
-#         comment_vector = last_hidden_state.mean(dim=1).squeeze().tolist()
-#         vectors.append(comment_vector)
-#
-#     # 使用PCA降維到二維空間
-#     pca = PCA(n_components=2)
-#     reduced_vectors = pca.fit_transform(vectors)
-#
-#     # X軸和Y軸坐标
-#     x_coords = reduced_vectors[:, 0]
-#     y_coords = reduced_vectors[:, 1]
-#
-#     # 結果
-#     result = []
-#     for i in range(len(comments)):
-#         result.append({
-#             'comment': comments[i],
-#             'x': x_coords[i],
-#             'y': y_coords[i]
-#         })
-#
-#     return Response({'result': result})
 
