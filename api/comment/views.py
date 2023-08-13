@@ -1,13 +1,9 @@
-import torch
-
-from rest_framework.decorators import api_view, permission_classes
-from transformers import BertTokenizer, BertModel
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 
 from django.core.exceptions import ObjectDoesNotExist
 from api.models import *
 from utils.response_helpers import *
-from sklearn.decomposition import PCA
+from collections import Counter, OrderedDict
 
 
 @api_view(['POST'])
@@ -305,3 +301,93 @@ def dislikes(request):
     return success_response(total)
 
 
+@api_view(['POST'])
+def theft_feature(request):
+    data = request.data
+    verdict_id = data.get('verdict_id')
+
+    comments = Comment.objects.filter(verdict_id=verdict_id)
+
+    # 計算comments的資料筆數
+    num_comments = comments.count()
+
+    if num_comments > 5:
+        # 初始化計數器
+        count_is_money_related = 0
+        count_is_abandoned = 0
+        count_is_indoor = 0
+        count_is_destructive = 0
+        count_is_group_crime = 0
+        count_is_transportation_used = 0
+        count_has_criminal_record = 0
+        count_is_income_tool = 0
+
+        for comment in comments:
+            theft = CommentTheft.objects.get(comment_id=comment)
+
+            # 檢查每個屬性並進行計數
+            if theft.is_money_related:
+                count_is_money_related += 1
+            if theft.is_abandoned:
+                count_is_abandoned += 1
+            if theft.is_indoor:
+                count_is_indoor += 1
+            if theft.is_destructive:
+                count_is_destructive += 1
+            if theft.is_group_crime:
+                count_is_group_crime += 1
+            if theft.is_transportation_used:
+                count_is_transportation_used += 1
+            if theft.has_criminal_record:
+                count_has_criminal_record += 1
+            if theft.is_income_tool:
+                count_is_income_tool += 1
+
+        # 創建統計資料字典
+        stats_data = {
+            "is_money_related": count_is_money_related,
+            "is_abandoned": count_is_abandoned,
+            "is_indoor": count_is_indoor,
+            "is_destructive": count_is_destructive,
+            "is_group_crime": count_is_group_crime,
+            "is_transportation_used": count_is_transportation_used,
+            "has_criminal_record": count_has_criminal_record,
+            "is_income_tool": count_is_income_tool,
+        }
+
+        return success_response(data=stats_data, message='成功')
+    else:
+        # 筆數不足 5 筆，回傳失敗訊息
+        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def theft_month(request):
+    data = request.data
+    verdict_id = data.get('verdict_id')
+
+    comments = Comment.objects.filter(verdict_id=verdict_id)
+
+    # 計算comments的資料筆數
+    num_comments = comments.count()
+
+    if num_comments > 5:
+        # 初始化計數器
+        month_data = []
+
+        for comment in comments:
+            theft = CommentTheft.objects.get(comment_id=comment)
+
+            # 將 month 屬性添加到資料中
+            month_data.append(theft.month)  # 假設 CommentTheft 物件有 month 屬性
+
+        # 使用 Counter 計算每個月份出現的次數
+        month_counter = Counter(month_data)
+
+        # 將字典按照鍵值排序
+        sorted_month_counter = OrderedDict(sorted(month_counter.items()))
+
+        return success_response(data=sorted_month_counter, message='成功')
+    else:
+        # 筆數不足 5 筆，回傳失敗訊息
+        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
