@@ -43,6 +43,8 @@ class CustomVerdictSerializer(VerdictSerializer):
         return obj.result.split('\n')
 
     def get_laws(self, obj):
+        if obj.laws is None:
+            return obj.laws
         return obj.laws.split(',')
 
     def get_recommendations(self, obj):
@@ -51,34 +53,46 @@ class CustomVerdictSerializer(VerdictSerializer):
 
         # --- 排除已留言過的判決書(之後再判斷其他犯罪類型) ---
         verdict_ids = Comment.objects.filter(email=email).values_list('verdict_id', flat=True)
-        data = TheftFeature.objects.exclude(id__in=verdict_ids)
 
-        # 取得特徵列名稱
-        feature_columns = [field.name for field in TheftFeature._meta.get_fields()][1:-1]
+        data, feature_columns = None, None
+
+        if obj.crime_id == 1:
+            # 排除已留言過的文章
+            data = TheftFeature.objects.exclude(id__in=verdict_ids)
+            # 取得特徵列名稱
+            feature_columns = [field.name for field in TheftFeature._meta.get_fields()][1:-1]
+        elif obj.crime_id == 2:
+            return []
+        elif obj.crime_id == 3:
+            data = RobberyFeature.objects.exclude(id__in=verdict_ids)
+            feature_columns = [field.name for field in RobberyFeature._meta.get_fields()][1:-3]
+        else:
+            return []
 
         # QuerySet 轉換成 Pandas DataFrame、計算特徵之間的相似度矩陣
         data_df = pd.DataFrame.from_records(data.values_list(*feature_columns))
         similarity_matrix = cosine_similarity(data_df)
 
         # 該判決書 verdict_id 在 QuerySet 的位置
+
         index = list(data.values_list('id', flat=True)).index(verdict_id)
         # print(index)
         # print(data[index])
 
         # 取得相似度(遞減)的判決書索引
         similar_verdicts_indices = similarity_matrix[index].argsort()[::-1]
-        print(similar_verdicts_indices)
+        # print(similar_verdicts_indices)
 
         # 移除 verdict_id 在 QuerySet 的位置的值
         indices_to_remove = np.where(similar_verdicts_indices == index)[0]
-        print(indices_to_remove)
+        # print(indices_to_remove)
         similar_articles_indices = np.delete(similar_verdicts_indices, indices_to_remove)
-        print(similar_articles_indices)
+        # print(similar_articles_indices)
 
         # 取得 data 的索引列表以獲取對應索引的 data 資料
         data_indices = similar_articles_indices[:3]
         recommendation_ids = [data[index].pk for index in data_indices.tolist()]
-        print(recommendation_ids)
+        # print(recommendation_ids)
 
         # 獲取字典形式的判決書，確保按照推薦順序進行推薦
         verdicts_dict = Verdict.objects.in_bulk(recommendation_ids)

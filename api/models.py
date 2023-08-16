@@ -138,6 +138,25 @@ class Reply(models.Model):
         db_table = 'reply'
 
 
+class RobberyFeature(models.Model):
+    id = models.OneToOneField('Verdict', models.DO_NOTHING, db_column='id', primary_key=True)
+    is_victim_injured = models.IntegerField(blank=True, null=True)
+    is_group_crime = models.IntegerField(blank=True, null=True)
+    is_weapon_used = models.IntegerField(blank=True, null=True)
+    has_prior_record = models.IntegerField(blank=True, null=True)
+    is_planned = models.IntegerField(blank=True, null=True)
+    is_multi_victims = models.IntegerField(blank=True, null=True)
+    is_due_to_hardship = models.IntegerField(blank=True, null=True)
+    is_property_damaged = models.IntegerField(blank=True, null=True)
+    month = models.IntegerField(blank=True, null=True)
+    prison_year = models.IntegerField(blank=True, null=True)
+    prison_month = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'robbery_feature'
+
+
 class Saved(models.Model):
     verdict = models.OneToOneField('Verdict', models.DO_NOTHING, primary_key=True)
     email = models.ForeignKey(Account, models.DO_NOTHING, db_column='email')
