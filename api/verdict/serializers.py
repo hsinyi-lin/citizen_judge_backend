@@ -54,6 +54,11 @@ class CustomVerdictSerializer(VerdictSerializer):
         # --- 排除已留言過的判決書(之後再判斷其他犯罪類型) ---
         verdict_ids = Comment.objects.filter(email=email).values_list('verdict_id', flat=True)
 
+        # 使填寫過留言的判例不可推薦，但還是可以從搜尋點入該判例
+        if verdict_id in verdict_ids:
+            verdict_ids = [id for id in verdict_ids if id != verdict_id]
+
+
         data, feature_columns = None, None
 
         if obj.crime_id == 1:
