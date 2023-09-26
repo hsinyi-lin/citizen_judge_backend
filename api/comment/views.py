@@ -9,8 +9,6 @@ from collections import Counter, OrderedDict
 @api_view(['POST'])
 def add_comment(request):
     data = request.data
-
-    # 從請求數據中獲取相關欄位資料
     verdict_id = data.get('verdict_id')
     email = request.user_id
     content = data.get('content')
@@ -23,6 +21,7 @@ def add_comment(request):
     has_criminal_record = data.get('has_criminal_record')
     is_income_tool = data.get('is_income_tool')
     month = data.get('month')
+    crime_id = data.get('crime_id')
 
     # 檢查是否已經留言過
     if Comment.objects.filter(verdict_id=verdict_id, email=email).exists():
@@ -30,14 +29,14 @@ def add_comment(request):
 
     # 創建 Comment 物件
     Comment.objects.create(verdict_id=verdict_id, email_id=email, content=content, is_edit=0)
-
     comment = Comment.objects.get(verdict_id=verdict_id, email_id=email)
 
-    # 創建 CommentTheft 物件，使用創建的 Comment 實例來賦值給 comment 欄位
-    CommentTheft.objects.create(comment=comment, is_money_related=is_money_related, is_abandoned=is_abandoned,
-                                is_indoor=is_indoor, is_destructive=is_destructive, is_group_crime=is_group_crime,
-                                is_transportation_used=is_transportation_used, has_criminal_record=has_criminal_record,
-                                is_income_tool=is_income_tool, month=month)
+    # 如果 crime_id 是1，則創建 CommentTheft 物件
+    if crime_id == 1:
+        CommentTheft.objects.create(comment=comment, is_money_related=is_money_related, is_abandoned=is_abandoned,
+                                    is_indoor=is_indoor, is_destructive=is_destructive, is_group_crime=is_group_crime,
+                                    is_transportation_used=is_transportation_used, has_criminal_record=has_criminal_record,
+                                    is_income_tool=is_income_tool, month=month)
 
     return Response({'message': '成功'}, status=status.HTTP_201_CREATED)
 
@@ -67,12 +66,16 @@ def delete_comment(request):
 def get_comments(request):
     data = request.query_params
     verdict_id = data.get('verdict_id')
+    crime_id = data.get('crime_id')
 
     comments = Comment.objects.filter(verdict_id=verdict_id)
 
     data = []
 
     for comment in comments:
+        if crime_id != '1':
+            continue
+
         replies = Reply.objects.filter(comment=comment)
         theft = CommentTheft.objects.get(comment_id=comment)
         reply_data = [
@@ -127,23 +130,25 @@ def edit_comment(request):
     has_criminal_record = data.get('has_criminal_record')
     is_income_tool = data.get('is_income_tool')
     month = data.get('month')
+    crime_id = data.get('crime_id')
 
     comment = Comment.objects.get(verdict_id=verdict_id, email_id=email)
     comment.content = content
     comment.is_edit = True
     comment.save()
 
-    theft = CommentTheft.objects.get(comment_id=comment_id)
-    theft.is_money_related = is_money_related
-    theft.is_abandoned = is_abandoned
-    theft.is_indoor = is_indoor
-    theft.is_destructive = is_destructive
-    theft.is_group_crime = is_group_crime
-    theft.is_transportation_used = is_transportation_used
-    theft.has_criminal_record = has_criminal_record
-    theft.is_income_tool = is_income_tool
-    theft.month = month
-    theft.save()
+    if crime_id == 1:
+        theft = CommentTheft.objects.get(comment_id=comment_id)
+        theft.is_money_related = is_money_related
+        theft.is_abandoned = is_abandoned
+        theft.is_indoor = is_indoor
+        theft.is_destructive = is_destructive
+        theft.is_group_crime = is_group_crime
+        theft.is_transportation_used = is_transportation_used
+        theft.has_criminal_record = has_criminal_record
+        theft.is_income_tool = is_income_tool
+        theft.month = month
+        theft.save()
 
     return success_response(message='成功')
 
