@@ -87,6 +87,44 @@ class Crime(models.Model):
         db_table = 'crime'
 
 
+class DrivingFeature(models.Model):
+    id = models.IntegerField(primary_key=True)
+    has_driving_license = models.IntegerField(blank=True, null=True)
+    has_passengers = models.IntegerField(blank=True, null=True)
+    affected_traffic_safety = models.IntegerField(blank=True, null=True)
+    caused_property_damage = models.IntegerField(blank=True, null=True)
+    is_professional_driver = models.IntegerField(blank=True, null=True)
+    hit_and_run = models.IntegerField(blank=True, null=True)
+    victim_has_severe_injury = models.IntegerField(blank=True, null=True)
+    weather_was_clear = models.IntegerField(blank=True, null=True)
+    month = models.IntegerField(blank=True, null=True)
+    prison_year = models.IntegerField(blank=True, null=True)
+    prison_month = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'driving_feature'
+
+
+class HomicideFeature(models.Model):
+    id = models.OneToOneField('Verdict', models.DO_NOTHING, db_column='id', primary_key=True)
+    is_attempted = models.IntegerField(blank=True, null=True)
+    is_child_victim = models.IntegerField(blank=True, null=True)
+    is_family_relation = models.IntegerField(blank=True, null=True)
+    is_mentally_ill = models.IntegerField(blank=True, null=True)
+    is_money_dispute = models.IntegerField(blank=True, null=True)
+    is_prior_record = models.IntegerField(blank=True, null=True)
+    is_emotional_dispute = models.IntegerField(blank=True, null=True)
+    has_historical_hate = models.IntegerField(blank=True, null=True)
+    month = models.IntegerField(blank=True, null=True)
+    prison_year = models.IntegerField(blank=True, null=True)
+    prison_month = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'homicide_feature'
+
+
 class Job(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50)
