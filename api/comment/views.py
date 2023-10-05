@@ -9,19 +9,11 @@ from collections import Counter, OrderedDict
 @api_view(['POST'])
 def add_comment(request):
     data = request.data
+    crime_id = data.get('crime_id')
     verdict_id = data.get('verdict_id')
     email = request.user_id
     content = data.get('content')
-    is_money_related = data.get('is_money_related')
-    is_abandoned = data.get('is_abandoned')
-    is_indoor = data.get('is_indoor')
-    is_destructive = data.get('is_destructive')
-    is_group_crime = data.get('is_group_crime')
-    is_transportation_used = data.get('is_transportation_used')
-    has_criminal_record = data.get('has_criminal_record')
-    is_income_tool = data.get('is_income_tool')
     month = data.get('month')
-    crime_id = data.get('crime_id')
 
     # 檢查是否已經留言過
     if Comment.objects.filter(verdict_id=verdict_id, email=email).exists():
@@ -33,12 +25,61 @@ def add_comment(request):
 
     # 如果 crime_id 是1，則創建 CommentTheft 物件
     if crime_id == 1:
+        is_money_related = data.get('is_money_related')
+        is_abandoned = data.get('is_abandoned')
+        is_indoor = data.get('is_indoor')
+        is_destructive = data.get('is_destructive')
+        is_group_crime = data.get('is_group_crime')
+        is_transportation_used = data.get('is_transportation_used')
+        has_criminal_record = data.get('has_criminal_record')
+        is_income_tool = data.get('is_income_tool')
         CommentTheft.objects.create(comment=comment, is_money_related=is_money_related, is_abandoned=is_abandoned,
                                     is_indoor=is_indoor, is_destructive=is_destructive, is_group_crime=is_group_crime,
                                     is_transportation_used=is_transportation_used, has_criminal_record=has_criminal_record,
                                     is_income_tool=is_income_tool, month=month)
+    elif crime_id == 2:
+        is_attempted = data.get('is_attempted')
+        is_child_victim = data.get('is_child_victim')
+        is_family_relation = data.get('is_family_relation')
+        is_mentally_ill = data.get('is_mentally_ill')
+        is_money_dispute = data.get('is_money_dispute')
+        is_prior_record = data.get('is_prior_record')
+        is_emotional_dispute = data.get('is_emotional_dispute')
+        is_intentional = data.get('is_intentional')
+        CommentTheft.objects.create(comment=comment, is_attempted=is_attempted, is_child_victim=is_child_victim,
+                                    is_family_relation=is_family_relation, is_mentally_ill=is_mentally_ill, is_money_dispute=is_money_dispute,
+                                    is_prior_record=is_prior_record,is_emotional_dispute=is_emotional_dispute,
+                                    is_intentional=is_intentional, month=month)
+    elif crime_id == 3:
+        is_victim_injured = data.get('is_victim_injured')
+        is_group_crime = data.get('is_group_crime')
+        is_weapon_used = data.get('is_weapon_used')
+        has_prior_record = data.get('has_prior_record')
+        is_planned = data.get('is_planned')
+        is_multi_victims = data.get('is_multi_victims')
+        is_due_to_hardship = data.get('is_due_to_hardship')
+        is_property_damaged = data.get('is_property_damaged')
+        CommentTheft.objects.create(comment=comment, is_victim_injured=is_victim_injured, is_group_crime=is_group_crime,
+                                    is_weapon_used=is_weapon_used, has_prior_record=has_prior_record,
+                                    is_planned=is_planned, is_multi_victims=is_multi_victims,
+                                    is_due_to_hardship=is_due_to_hardship, is_property_damaged=is_property_damaged, month=month)
+    elif crime_id == 4:
+        has_driving_license = data.get('has_driving_license')
+        has_passengers = data.get('has_passengers')
+        affected_traffic_safety = data.get('affected_traffic_safety')
+        caused_property_damage = data.get('caused_property_damage')
+        is_professional_driver = data.get('is_professional_driver')
+        hit_and_run = data.get('hit_and_run')
+        victim_has_severe_injury = data.get('victim_has_severe_injury')
+        weather_was_clear = data.get('weather_was_clear')
+        CommentTheft.objects.create(comment=comment, has_driving_license=has_driving_license, is_group_crime=has_passengers,
+                                    affected_traffic_safety=affected_traffic_safety, caused_property_damage=caused_property_damage,
+                                    is_professional_driver=is_professional_driver, hit_and_run=hit_and_run,
+                                    victim_has_severe_injury=victim_has_severe_injury, weather_was_clear=weather_was_clear, month=month)
+    else:
+        return error_response(message='犯罪編號錯誤', status_code=status.HTTP_400_BAD_REQUEST)
 
-    return Response({'message': '成功'}, status=status.HTTP_201_CREATED)
+    return success_response(message='成功', status_code=status.HTTP_201_CREATED)
 
 
 @api_view(['DELETE'])
@@ -46,67 +87,179 @@ def delete_comment(request):
     data = request.data
 
     comment_id = data.get('comment_id')
+    crime_id = data.get('crime_id')
     email = request.user_id
 
     comment = Comment.objects.filter(id=comment_id, email_id=email)
     reply = Reply.objects.filter(comment_id=comment_id)
-    comment_theft = CommentTheft.objects.filter(comment_id=comment_id)
+    com_like = CommentLike.objects.filter(comment_id=comment_id)
+    com_dislike = CommentDislike.objects.filter(comment_id=comment_id)
+    if crime_id == 1:
+        feature = CommentTheft.objects.filter(comment_id=comment_id)
+    elif crime_id == 2:
+        feature = CommentHomicide.objects.filter(comment_id=comment_id)
+    elif crime_id == 3:
+        feature = CommentRobbery.objects.filter(comment_id=comment_id)
+    elif crime_id == 4:
+        feature = CommentDriving.objects.filter(comment_id=comment_id)
+    else:
+        return error_response(message='犯罪編號錯誤', status_code=status.HTTP_400_BAD_REQUEST)
 
     if not comment.exists():
-        return error_response(message='找無此留言', status_code=status.HTTP_410_GONE)
+        return error_response(message='查無此留言', status_code=status.HTTP_410_GONE)
 
     reply.delete()
-    comment_theft.delete()
+    feature.delete()
+    com_like.delete()
+    com_dislike.delete()
     comment.delete()
     
-    return success_response(message='成功')
+    return success_response(message='成功', status_code=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 def get_comments(request):
     data = request.query_params
+    email = data.get('email')
     verdict_id = data.get('verdict_id')
     crime_id = data.get('crime_id')
 
     comments = Comment.objects.filter(verdict_id=verdict_id)
+    if not comments.exists():
+        return error_response(message='查無此留言', status_code=status.HTTP_410_GONE)
+
+    if not Comment.objects.filter(email=email, verdict_id=verdict_id).exists():
+        return error_response(message='尚未留言', status_code=status.HTTP_410_GONE)
 
     data = []
 
     for comment in comments:
-        if crime_id != '1':
-            continue
-
         replies = Reply.objects.filter(comment=comment)
-        theft = CommentTheft.objects.get(comment_id=comment)
-        reply_data = [
-            {
-                "reply_id": reply.id,
-                "reply_email": reply.email.pk,
-                "job": reply.email.job.name,
-                "reply": reply.content,
-                "reply_create_time": reply.create_time,
-                "reply_is_edited": reply.is_edit
+        if crime_id == '1':
+            theft = CommentTheft.objects.get(comment_id=comment)
+            reply_data = [
+                {
+                    "reply_id": reply.id,
+                    "reply_email": reply.email.pk,
+                    "job": reply.email.job.name,
+                    "reply": reply.content,
+                    "reply_create_time": reply.create_time,
+                    "reply_is_edited": reply.is_edit
+                }
+                for reply in replies
+            ]
+            comment_data = {
+                "comment_id": comment.id.pk,
+                "comment_email": comment.email.email,
+                "job": comment.email.job.name,
+                "comment": comment.content,
+                "comment_create_time": comment.create_time,
+                "is_money_related": theft.is_money_related,
+                "is_abandoned": theft.is_abandoned,
+                "is_indoor": theft.is_indoor,
+                "is_destructive": theft.is_destructive,
+                "is_group_crime": theft.is_group_crime,
+                "is_transportation_used": theft.is_transportation_used,
+                "has_criminal_record": theft.has_criminal_record,
+                "is_income_tool": theft.is_income_tool,
+                "month": theft.month,
+                "replies": reply_data
             }
-            for reply in replies
-        ]
+        elif crime_id == 2:
+            homicide = CommentHomicide.objects.get(comment_id=comment)
+            reply_data = [
+                {
+                    "reply_id": reply.id,
+                    "reply_email": reply.email.pk,
+                    "job": reply.email.job.name,
+                    "reply": reply.content,
+                    "reply_create_time": reply.create_time,
+                    "reply_is_edited": reply.is_edit
+                }
+                for reply in replies
+            ]
 
-        comment_data = {
-            "comment_id": comment.id.pk,
-            "comment_email": comment.email.email,
-            "job": comment.email.job.name,
-            "comment": comment.content,
-            "comment_create_time": comment.create_time,
-            "is_money_related": theft.is_money_related,
-            "is_abandoned": theft.is_abandoned,
-            "is_indoor": theft.is_indoor,
-            "is_destructive": theft.is_destructive,
-            "is_group_crime": theft.is_group_crime,
-            "is_transportation_used": theft.is_transportation_used,
-            "has_criminal_record": theft.has_criminal_record,
-            "is_income_tool": theft.is_income_tool,
-            "month": theft.month,
-            "replies": reply_data
-        }
+            comment_data = {
+                "comment_id": comment.id.pk,
+                "comment_email": comment.email.email,
+                "job": comment.email.job.name,
+                "comment": comment.content,
+                "comment_create_time": comment.create_time,
+                "is_attempted": homicide.is_attempted,
+                "is_child_victim": homicide.is_child_victim,
+                "is_family_relation": homicide.is_family_relation,
+                "is_mentally_ill": homicide.is_mentally_ill,
+                "is_money_dispute": homicide.is_money_dispute,
+                "is_prior_record": homicide.is_prior_record,
+                "is_emotional_dispute": homicide.is_emotional_dispute,
+                "is_intentional": homicide.is_intentional,
+                "month": homicide.month,
+                "replies": reply_data
+            }
+        elif crime_id == 3:
+            robbery = CommentRobbery.objects.get(comment_id=comment)
+            reply_data = [
+                {
+                    "reply_id": reply.id,
+                    "reply_email": reply.email.pk,
+                    "job": reply.email.job.name,
+                    "reply": reply.content,
+                    "reply_create_time": reply.create_time,
+                    "reply_is_edited": reply.is_edit
+                }
+                for reply in replies
+            ]
+
+            comment_data = {
+                "comment_id": comment.id.pk,
+                "comment_email": comment.email.email,
+                "job": comment.email.job.name,
+                "comment": comment.content,
+                "comment_create_time": comment.create_time,
+                "is_victim_injured": robbery.is_victim_injured,
+                "is_group_crime": robbery.is_group_crime,
+                "is_weapon_used": robbery.is_weapon_used,
+                "has_prior_record": robbery.has_prior_record,
+                "is_planned": robbery.is_planned,
+                "is_multi_victims": robbery.is_multi_victims,
+                "is_due_to_hardship": robbery.is_due_to_hardship,
+                "is_property_damaged": robbery.is_property_damaged,
+                "month": robbery.month,
+                "replies": reply_data
+            }
+        elif crime_id == 4:
+            driving = CommentDriving.objects.get(comment_id=comment)
+            reply_data = [
+                {
+                    "reply_id": reply.id,
+                    "reply_email": reply.email.pk,
+                    "job": reply.email.job.name,
+                    "reply": reply.content,
+                    "reply_create_time": reply.create_time,
+                    "reply_is_edited": reply.is_edit
+                }
+                for reply in replies
+            ]
+
+            comment_data = {
+                "comment_id": comment.id.pk,
+                "comment_email": comment.email.email,
+                "job": comment.email.job.name,
+                "comment": comment.content,
+                "comment_create_time": comment.create_time,
+                "has_driving_license": driving.has_driving_license,
+                "has_passengers": driving.has_passengers,
+                "affected_traffic_safety": driving.affected_traffic_safety,
+                "caused_property_damage": driving.caused_property_damage,
+                "is_professional_driver": driving.is_professional_driver,
+                "hit_and_run": driving.hit_and_run,
+                "victim_has_severe_injury": driving.victim_has_severe_injury,
+                "weather_was_clear": driving.weather_was_clear,
+                "month": driving.month,
+                "replies": reply_data
+            }
+        else:
+            return error_response(message='犯罪編號錯誤', status_code=status.HTTP_400_BAD_REQUEST)
 
         data.append(comment_data)
 
