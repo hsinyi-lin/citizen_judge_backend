@@ -120,7 +120,7 @@ def delete_comment(request):
 @api_view(['GET'])
 def get_comments(request):
     data = request.query_params
-    email = data.get('email')
+    email = request.user_id
     verdict_id = data.get('verdict_id')
     crime_id = data.get('crime_id')
 
@@ -274,23 +274,26 @@ def edit_comment(request):
     comment_id = data.get('comment_id')
     email = request.user_id
     content = data.get('content')
-    is_money_related = data.get('is_money_related')
-    is_abandoned = data.get('is_abandoned')
-    is_indoor = data.get('is_indoor')
-    is_destructive = data.get('is_destructive')
-    is_group_crime = data.get('is_group_crime')
-    is_transportation_used = data.get('is_transportation_used')
-    has_criminal_record = data.get('has_criminal_record')
-    is_income_tool = data.get('is_income_tool')
     month = data.get('month')
     crime_id = data.get('crime_id')
 
     comment = Comment.objects.get(verdict_id=verdict_id, email_id=email)
+    if not comment.exists():
+        return error_response(message='查無此留言', status_code=status.HTTP_410_GONE)
+    
     comment.content = content
     comment.is_edit = True
     comment.save()
 
     if crime_id == 1:
+        is_money_related = data.get('is_money_related')
+        is_abandoned = data.get('is_abandoned')
+        is_indoor = data.get('is_indoor')
+        is_destructive = data.get('is_destructive')
+        is_group_crime = data.get('is_group_crime')
+        is_transportation_used = data.get('is_transportation_used')
+        has_criminal_record = data.get('has_criminal_record')
+        is_income_tool = data.get('is_income_tool')
         theft = CommentTheft.objects.get(comment_id=comment_id)
         theft.is_money_related = is_money_related
         theft.is_abandoned = is_abandoned
@@ -302,6 +305,66 @@ def edit_comment(request):
         theft.is_income_tool = is_income_tool
         theft.month = month
         theft.save()
+    elif crime_id == 2:
+        is_attempted = data.get('is_attempted')
+        is_child_victim = data.get('is_child_victim')
+        is_family_relation = data.get('is_family_relation')
+        is_mentally_ill = data.get('is_mentally_ill')
+        is_money_dispute = data.get('is_money_dispute')
+        is_prior_record = data.get('is_prior_record')
+        is_emotional_dispute = data.get('is_emotional_dispute')
+        is_intentional = data.get('is_intentional')
+        homicide = CommentHomicide.objects.get(comment_id=comment_id)
+        homicide.is_attempted = is_attempted
+        homicide.is_child_victim = is_child_victim
+        homicide.is_family_relation = is_family_relation
+        homicide.is_mentally_ill = is_mentally_ill
+        homicide.is_group_crime = is_money_dispute
+        homicide.is_prior_record = is_prior_record
+        homicide.is_emotional_dispute = is_emotional_dispute
+        homicide.is_intentional = is_intentional
+        homicide.month = month
+        homicide.save()
+    elif crime_id == 3:
+        is_victim_injured = data.get('is_victim_injured')
+        is_group_crime = data.get('is_group_crime')
+        is_weapon_used = data.get('is_weapon_used')
+        has_prior_record = data.get('has_prior_record')
+        is_planned = data.get('is_planned')
+        is_multi_victims = data.get('is_multi_victims')
+        is_due_to_hardship = data.get('is_due_to_hardship')
+        is_property_damaged = data.get('is_property_damaged')
+        robbery = CommentRobbery.objects.get(comment_id=comment_id)
+        robbery.is_victim_injured = is_victim_injured
+        robbery.is_group_crime = is_group_crime
+        robbery.is_weapon_used = is_weapon_used
+        robbery.has_prior_record = has_prior_record
+        robbery.is_planned = is_planned
+        robbery.is_multi_victims = is_multi_victims
+        robbery.is_due_to_hardship = is_due_to_hardship
+        robbery.is_property_damaged = is_property_damaged
+        robbery.month = month
+        robbery.save()
+    elif crime_id == 4:
+        has_driving_license = data.get('has_driving_license')
+        has_passengers = data.get('has_passengers')
+        affected_traffic_safety = data.get('affected_traffic_safety')
+        caused_property_damage = data.get('caused_property_damage')
+        is_professional_driver = data.get('is_professional_driver')
+        hit_and_run = data.get('hit_and_run')
+        victim_has_severe_injury = data.get('victim_has_severe_injury')
+        weather_was_clear = data.get('weather_was_clear')
+        driving = CommentDriving.objects.get(comment_id=comment_id)
+        driving.has_driving_license = has_driving_license
+        driving.has_passengers = has_passengers
+        driving.affected_traffic_safety = affected_traffic_safety
+        driving.caused_property_damage = caused_property_damage
+        driving.is_professional_driver = is_professional_driver
+        driving.hit_and_run = hit_and_run
+        driving.victim_has_severe_injury = victim_has_severe_injury
+        driving.weather_was_clear = weather_was_clear
+        driving.month = month
+        driving.save()
 
     return success_response(message='成功')
 
