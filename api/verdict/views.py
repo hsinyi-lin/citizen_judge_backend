@@ -144,3 +144,51 @@ def uncollect_verdict(request):
 
     saved.delete()
     return success_response(message='成功')
+
+
+@api_view(['GET'])
+def crime_trend(request):
+    data = request.query_params
+
+    crime_id = int(data.get('crime_id'))
+
+    if crime_id not in [1, 2, 3, 4]:
+        return error_response(message='犯罪編號錯誤', status_code=status.HTTP_400_BAD_REQUEST)
+
+    data_cnt = 0
+    fields = []
+    Feature = None
+
+    # 取得某特徵模型的所有欄位
+    if crime_id == 1:
+        Feature = TheftFeature
+        fields = Feature._meta.get_fields()[1:-1]
+        data_cnt = Feature.objects.all().count()
+    elif crime_id == 2:
+        Feature = HomicideFeature
+        fields = Feature._meta.get_fields()[1:-3]
+        data_cnt = Feature.objects.all().count()
+    elif crime_id == 3:
+        Feature = RobberyFeature
+        fields = Feature._meta.get_fields()[1:-3]
+        data_cnt = Feature.objects.all().count()
+    elif crime_id == 4:
+        Feature = DrivingFeature
+        fields = Feature._meta.get_fields()[1:-3]
+        data_cnt = Feature.objects.all().count()
+
+    # 所有欄位的總和
+    column_totals = {}
+
+    # 計算每個欄位的總和
+    for field in fields:
+        if isinstance(field, models.IntegerField):
+            column_name = f'{field.name}_total'
+            total = Feature.objects.aggregate(total=models.Sum(field.name))['total']
+            column_totals[column_name] = total
+
+    # 加入該犯罪類型的判例總比數
+    column_totals['verdict_total'] = data_cnt
+    return success_response(data=column_totals)
+
+

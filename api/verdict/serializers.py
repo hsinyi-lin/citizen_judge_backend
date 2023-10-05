@@ -58,7 +58,6 @@ class CustomVerdictSerializer(VerdictSerializer):
         if verdict_id in verdict_ids:
             verdict_ids = [id for id in verdict_ids if id != verdict_id]
 
-
         data, feature_columns = None, None
 
         if obj.crime_id == 1:
@@ -67,19 +66,20 @@ class CustomVerdictSerializer(VerdictSerializer):
             # 取得特徵列名稱
             feature_columns = [field.name for field in TheftFeature._meta.get_fields()][1:-1]
         elif obj.crime_id == 2:
-            return []
+            data = HomicideFeature.objects.exclude(id__in=verdict_ids)
+            feature_columns = [field.name for field in HomicideFeature._meta.get_fields()][1:-3]
         elif obj.crime_id == 3:
             data = RobberyFeature.objects.exclude(id__in=verdict_ids)
             feature_columns = [field.name for field in RobberyFeature._meta.get_fields()][1:-3]
         else:
-            return []
+            data = DrivingFeature.objects.exclude(id__in=verdict_ids)
+            feature_columns = [field.name for field in DrivingFeature._meta.get_fields()][1:-3]
 
         # QuerySet 轉換成 Pandas DataFrame、計算特徵之間的相似度矩陣
         data_df = pd.DataFrame.from_records(data.values_list(*feature_columns))
         similarity_matrix = cosine_similarity(data_df)
 
         # 該判決書 verdict_id 在 QuerySet 的位置
-
         index = list(data.values_list('id', flat=True)).index(verdict_id)
         # print(index)
         # print(data[index])
