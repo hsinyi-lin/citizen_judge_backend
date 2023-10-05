@@ -78,6 +78,60 @@ class CommentTheft(models.Model):
         db_table = 'comment_theft'
 
 
+class CommentDriving(models.Model):
+    id = models.AutoField(primary_key=True)
+    comment = models.ForeignKey(Comment, models.DO_NOTHING, db_column='comment_id')
+    has_driving_license = models.BooleanField()
+    has_passengers = models.BooleanField()
+    affected_traffic_safety = models.BooleanField()
+    caused_property_damage = models.BooleanField()
+    is_professional_driver = models.BooleanField()
+    hit_and_run = models.BooleanField()
+    victim_has_severe_injury = models.BooleanField()
+    weather_was_clear = models.BooleanField()
+    month = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'comment_driving'
+
+
+class CommentHomicide(models.Model):
+    id = models.AutoField(primary_key=True)
+    comment = models.ForeignKey(Comment, models.DO_NOTHING, db_column='comment_id')
+    is_attempted = models.BooleanField()
+    is_family_relation = models.BooleanField()
+    is_child_victim = models.BooleanField()
+    is_mentally_ill = models.BooleanField()
+    is_money_dispute = models.BooleanField()
+    is_prior_record = models.BooleanField()
+    is_emotional_dispute = models.BooleanField()
+    is_intentional = models.BooleanField()
+    month = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'comment_homicide'
+
+
+class CommentRobbery(models.Model):
+    id = models.AutoField(primary_key=True)
+    comment = models.ForeignKey(Comment, models.DO_NOTHING, db_column='comment_id')
+    is_victim_injured = models.BooleanField()
+    is_group_crime = models.BooleanField()
+    is_weapon_used = models.BooleanField()
+    has_prior_record = models.BooleanField()
+    is_planned = models.BooleanField()
+    is_multi_victims = models.BooleanField()
+    is_due_to_hardship = models.BooleanField()
+    is_property_damaged = models.BooleanField()
+    month = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'comment_robbery'
+
+
 class Crime(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=20)
