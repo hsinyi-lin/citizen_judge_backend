@@ -280,7 +280,6 @@ def edit_comment(request):
     comment = Comment.objects.get(verdict_id=verdict_id, email_id=email)
     if not comment.exists():
         return error_response(message='查無此留言', status_code=status.HTTP_410_GONE)
-    
     comment.content = content
     comment.is_edit = True
     comment.save()
@@ -579,6 +578,176 @@ def theft_feature(request):
         return success_response(data=stats_data, message='成功')
     else:
         # 筆數不足 5 筆，回傳失敗訊息
+        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def homicide_feature(request):
+    data = request.data
+    verdict_id = data.get('verdict_id')
+
+    comments = Comment.objects.filter(verdict_id=verdict_id)
+
+    # 計算comments的資料筆數
+    num_comments = comments.count()
+
+    if num_comments > 5:
+        # 初始化計數器
+        count_is_attempted = 0
+        count_is_child_victim = 0
+        count_is_family_relation = 0
+        count_is_mentally_ill = 0
+        count_is_money_dispute = 0
+        count_is_prior_record = 0
+        count_is_emotional_dispute = 0
+        count_is_intentional = 0
+
+        for comment in comments:
+            theft = CommentTheft.objects.get(comment_id=comment)
+
+            # 檢查每個屬性並進行計數
+            if theft.is_attempted:
+                count_is_attempted += 1
+            if theft.is_child_victim:
+                count_is_child_victim += 1
+            if theft.is_family_relation:
+                count_is_family_relation += 1
+            if theft.is_mentally_ill:
+                count_is_mentally_ill += 1
+            if theft.is_money_dispute:
+                count_is_money_dispute += 1
+            if theft.is_prior_record:
+                count_is_prior_record += 1
+            if theft.is_emotional_dispute:
+                count_is_emotional_dispute += 1
+            if theft.is_intentional:
+                count_is_intentional += 1
+
+        # 創建統計資料字典
+        stats_data = {
+            "is_attempted": count_is_attempted,
+            "is_child_victim": count_is_child_victim,
+            "is_family_relation": count_is_family_relation,
+            "is_mentally_ill": count_is_mentally_ill,
+            "is_money_dispute": count_is_money_dispute,
+            "is_prior_record": count_is_prior_record,
+            "is_emotional_dispute": count_is_emotional_dispute,
+            "is_intentional": count_is_intentional,
+        }
+
+        return success_response(data=stats_data, message='成功')
+    else:
+        # 筆數不足 5 筆，回傳失敗訊息
+        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def robbery_feature(request):
+    data = request.data
+    verdict_id = data.get('verdict_id')
+
+    comments = Comment.objects.filter(verdict_id=verdict_id)
+
+    num_comments = comments.count()
+
+    if num_comments > 5:
+        count_is_victim_injured = 0
+        count_is_group_crime = 0
+        count_is_weapon_used = 0
+        count_has_prior_record = 0
+        count_is_planned = 0
+        count_is_multi_victims = 0
+        count_is_due_to_hardship = 0
+        count_is_property_damaged = 0
+
+        for comment in comments:
+            theft = CommentTheft.objects.get(comment_id=comment)
+
+            if theft.is_victim_injured:
+                count_is_victim_injured += 1
+            if theft.is_group_crime:
+                count_is_group_crime += 1
+            if theft.is_weapon_used:
+                count_is_weapon_used += 1
+            if theft.has_prior_record:
+                count_has_prior_record += 1
+            if theft.is_planned:
+                count_is_planned += 1
+            if theft.is_multi_victims:
+                count_is_multi_victims += 1
+            if theft.is_due_to_hardship:
+                count_is_due_to_hardship += 1
+            if theft.is_property_damaged:
+                count_is_property_damaged += 1
+
+        stats_data = {
+            "is_victim_injured": count_is_victim_injured,
+            "is_group_crime": count_is_group_crime,
+            "is_weapon_used": count_is_weapon_used,
+            "has_prior_record": count_has_prior_record,
+            "is_planned": count_is_planned,
+            "is_multi_victims": count_is_multi_victims,
+            "is_due_to_hardship": count_is_due_to_hardship,
+            "is_property_damaged": count_is_property_damaged,
+        }
+
+        return success_response(data=stats_data, message='成功')
+    else:
+        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def driving_feature(request):
+    data = request.data
+    verdict_id = data.get('verdict_id')
+
+    comments = Comment.objects.filter(verdict_id=verdict_id)
+
+    num_comments = comments.count()
+
+    if num_comments > 5:
+        count_has_driving_license = 0
+        count_has_passengers = 0
+        count_affected_traffic_safety = 0
+        count_caused_property_damage = 0
+        count_is_professional_driver = 0
+        count_hit_and_run = 0
+        count_victim_has_severe_injury = 0
+        count_weather_was_clear = 0
+
+        for comment in comments:
+            driving_incident = CommentDriving.objects.get(comment_id=comment)
+
+            if driving_incident.has_driving_license:
+                count_has_driving_license += 1
+            if driving_incident.has_passengers:
+                count_has_passengers += 1
+            if driving_incident.affected_traffic_safety:
+                count_affected_traffic_safety += 1
+            if driving_incident.caused_property_damage:
+                count_caused_property_damage += 1
+            if driving_incident.is_professional_driver:
+                count_is_professional_driver += 1
+            if driving_incident.hit_and_run:
+                count_hit_and_run += 1
+            if driving_incident.victim_has_severe_injury:
+                count_victim_has_severe_injury += 1
+            if driving_incident.weather_was_clear:
+                count_weather_was_clear += 1
+
+        stats_data = {
+            "has_driving_license": count_has_driving_license,
+            "has_passengers": count_has_passengers,
+            "affected_traffic_safety": count_affected_traffic_safety,
+            "caused_property_damage": count_caused_property_damage,
+            "is_professional_driver": count_is_professional_driver,
+            "hit_and_run": count_hit_and_run,
+            "victim_has_severe_injury": count_victim_has_severe_injury,
+            "weather_was_clear": count_weather_was_clear,
+        }
+
+        return success_response(data=stats_data, message='成功')
+    else:
         return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
 
 
