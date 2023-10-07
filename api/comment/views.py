@@ -532,7 +532,7 @@ def feature(request):
     comments = Comment.objects.filter(verdict_id=verdict_id)
     num_comments = comments.count()
 
-    if num_comments <= 2:
+    if num_comments <= 5:
         return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
 
     if crime_id == 1:  # theft
