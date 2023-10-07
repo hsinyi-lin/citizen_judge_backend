@@ -522,233 +522,76 @@ def dislikes(request):
 
 
 @api_view(['POST'])
-def theft_feature(request):
+def feature(request):
     data = request.data
     verdict_id = data.get('verdict_id')
+    crime_id = data.get('crime_id')
 
     comments = Comment.objects.filter(verdict_id=verdict_id)
-
-    # 計算comments的資料筆數
     num_comments = comments.count()
 
-    if num_comments > 5:
-        # 初始化計數器
-        count_is_money_related = 0
-        count_is_abandoned = 0
-        count_is_indoor = 0
-        count_is_destructive = 0
-        count_is_group_crime = 0
-        count_is_transportation_used = 0
-        count_has_criminal_record = 0
-        count_is_income_tool = 0
-
-        for comment in comments:
-            theft = CommentTheft.objects.get(comment_id=comment)
-
-            # 檢查每個屬性並進行計數
-            if theft.is_money_related:
-                count_is_money_related += 1
-            if theft.is_abandoned:
-                count_is_abandoned += 1
-            if theft.is_indoor:
-                count_is_indoor += 1
-            if theft.is_destructive:
-                count_is_destructive += 1
-            if theft.is_group_crime:
-                count_is_group_crime += 1
-            if theft.is_transportation_used:
-                count_is_transportation_used += 1
-            if theft.has_criminal_record:
-                count_has_criminal_record += 1
-            if theft.is_income_tool:
-                count_is_income_tool += 1
-
-        # 創建統計資料字典
-        stats_data = {
-            "is_money_related": count_is_money_related,
-            "is_abandoned": count_is_abandoned,
-            "is_indoor": count_is_indoor,
-            "is_destructive": count_is_destructive,
-            "is_group_crime": count_is_group_crime,
-            "is_transportation_used": count_is_transportation_used,
-            "has_criminal_record": count_has_criminal_record,
-            "is_income_tool": count_is_income_tool,
-        }
-
-        return success_response(data=stats_data, message='成功')
-    else:
+    # 計算comments的資料筆數
+    if num_comments <= 5:
         # 筆數不足 5 筆，回傳失敗訊息
         return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['POST'])
-def homicide_feature(request):
-    data = request.data
-    verdict_id = data.get('verdict_id')
-
-    comments = Comment.objects.filter(verdict_id=verdict_id)
-
-    # 計算comments的資料筆數
-    num_comments = comments.count()
-
-    if num_comments > 5:
-        # 初始化計數器
-        count_is_attempted = 0
-        count_is_child_victim = 0
-        count_is_family_relation = 0
-        count_is_mentally_ill = 0
-        count_is_money_dispute = 0
-        count_is_prior_record = 0
-        count_is_emotional_dispute = 0
-        count_is_intentional = 0
-
-        for comment in comments:
+    stats_data = {}
+    for comment in comments:
+        if crime_id == 1:  # theft
             theft = CommentTheft.objects.get(comment_id=comment)
+            stats_data = {
+                "is_money_related": theft.is_money_related,
+                "is_abandoned": theft.is_abandoned,
+                "is_indoor": theft.is_indoor,
+                "is_destructive": theft.is_destructive,
+                "is_group_crime": theft.is_group_crime,
+                "is_transportation_used": theft.is_transportation_used,
+                "has_criminal_record": theft.has_criminal_record,
+                "is_income_tool": theft.is_income_tool,
+            }
 
-            # 檢查每個屬性並進行計數
-            if theft.is_attempted:
-                count_is_attempted += 1
-            if theft.is_child_victim:
-                count_is_child_victim += 1
-            if theft.is_family_relation:
-                count_is_family_relation += 1
-            if theft.is_mentally_ill:
-                count_is_mentally_ill += 1
-            if theft.is_money_dispute:
-                count_is_money_dispute += 1
-            if theft.is_prior_record:
-                count_is_prior_record += 1
-            if theft.is_emotional_dispute:
-                count_is_emotional_dispute += 1
-            if theft.is_intentional:
-                count_is_intentional += 1
-
-        # 創建統計資料字典
-        stats_data = {
-            "is_attempted": count_is_attempted,
-            "is_child_victim": count_is_child_victim,
-            "is_family_relation": count_is_family_relation,
-            "is_mentally_ill": count_is_mentally_ill,
-            "is_money_dispute": count_is_money_dispute,
-            "is_prior_record": count_is_prior_record,
-            "is_emotional_dispute": count_is_emotional_dispute,
-            "is_intentional": count_is_intentional,
-        }
-
-        return success_response(data=stats_data, message='成功')
-    else:
-        # 筆數不足 5 筆，回傳失敗訊息
-        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-def robbery_feature(request):
-    data = request.data
-    verdict_id = data.get('verdict_id')
-
-    comments = Comment.objects.filter(verdict_id=verdict_id)
-
-    num_comments = comments.count()
-
-    if num_comments > 5:
-        count_is_victim_injured = 0
-        count_is_group_crime = 0
-        count_is_weapon_used = 0
-        count_has_prior_record = 0
-        count_is_planned = 0
-        count_is_multi_victims = 0
-        count_is_due_to_hardship = 0
-        count_is_property_damaged = 0
-
-        for comment in comments:
+        elif crime_id == 2:  # homicide
             theft = CommentTheft.objects.get(comment_id=comment)
+            stats_data = {
+                "is_attempted": theft.is_attempted,
+                "is_child_victim": theft.is_child_victim,
+                "is_family_relation": theft.is_family_relation,
+                "is_mentally_ill": theft.is_mentally_ill,
+                "is_money_dispute": theft.is_money_dispute,
+                "is_prior_record": theft.is_prior_record,
+                "is_emotional_dispute": theft.is_emotional_dispute,
+                "is_intentional": theft.is_intentional,
+            }
 
-            if theft.is_victim_injured:
-                count_is_victim_injured += 1
-            if theft.is_group_crime:
-                count_is_group_crime += 1
-            if theft.is_weapon_used:
-                count_is_weapon_used += 1
-            if theft.has_prior_record:
-                count_has_prior_record += 1
-            if theft.is_planned:
-                count_is_planned += 1
-            if theft.is_multi_victims:
-                count_is_multi_victims += 1
-            if theft.is_due_to_hardship:
-                count_is_due_to_hardship += 1
-            if theft.is_property_damaged:
-                count_is_property_damaged += 1
+        elif crime_id == 3:  # robbery
+            theft = CommentTheft.objects.get(comment_id=comment)
+            stats_data = {
+                "is_victim_injured": theft.is_victim_injured,
+                "is_group_crime": theft.is_group_crime,
+                "is_weapon_used": theft.is_weapon_used,
+                "has_prior_record": theft.has_prior_record,
+                "is_planned": theft.is_planned,
+                "is_multi_victims": theft.is_multi_victims,
+                "is_due_to_hardship": theft.is_due_to_hardship,
+                "is_property_damaged": theft.is_property_damaged,
+            }
 
-        stats_data = {
-            "is_victim_injured": count_is_victim_injured,
-            "is_group_crime": count_is_group_crime,
-            "is_weapon_used": count_is_weapon_used,
-            "has_prior_record": count_has_prior_record,
-            "is_planned": count_is_planned,
-            "is_multi_victims": count_is_multi_victims,
-            "is_due_to_hardship": count_is_due_to_hardship,
-            "is_property_damaged": count_is_property_damaged,
-        }
-
-        return success_response(data=stats_data, message='成功')
-    else:
-        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-def driving_feature(request):
-    data = request.data
-    verdict_id = data.get('verdict_id')
-
-    comments = Comment.objects.filter(verdict_id=verdict_id)
-
-    num_comments = comments.count()
-
-    if num_comments > 5:
-        count_has_driving_license = 0
-        count_has_passengers = 0
-        count_affected_traffic_safety = 0
-        count_caused_property_damage = 0
-        count_is_professional_driver = 0
-        count_hit_and_run = 0
-        count_victim_has_severe_injury = 0
-        count_weather_was_clear = 0
-
-        for comment in comments:
+        elif crime_id == 4:  # driving
             driving_incident = CommentDriving.objects.get(comment_id=comment)
+            stats_data = {
+                "has_driving_license": driving_incident.has_driving_license,
+                "has_passengers": driving_incident.has_passengers,
+                "affected_traffic_safety": driving_incident.affected_traffic_safety,
+                "caused_property_damage": driving_incident.caused_property_damage,
+                "is_professional_driver": driving_incident.is_professional_driver,
+                "hit_and_run": driving_incident.hit_and_run,
+                "victim_has_severe_injury": driving_incident.victim_has_severe_injury,
+                "weather_was_clear": driving_incident.weather_was_clear,
+            }
 
-            if driving_incident.has_driving_license:
-                count_has_driving_license += 1
-            if driving_incident.has_passengers:
-                count_has_passengers += 1
-            if driving_incident.affected_traffic_safety:
-                count_affected_traffic_safety += 1
-            if driving_incident.caused_property_damage:
-                count_caused_property_damage += 1
-            if driving_incident.is_professional_driver:
-                count_is_professional_driver += 1
-            if driving_incident.hit_and_run:
-                count_hit_and_run += 1
-            if driving_incident.victim_has_severe_injury:
-                count_victim_has_severe_injury += 1
-            if driving_incident.weather_was_clear:
-                count_weather_was_clear += 1
+        # TODO: 如果還有其他犯罪類型，可以在這裡繼續加
 
-        stats_data = {
-            "has_driving_license": count_has_driving_license,
-            "has_passengers": count_has_passengers,
-            "affected_traffic_safety": count_affected_traffic_safety,
-            "caused_property_damage": count_caused_property_damage,
-            "is_professional_driver": count_is_professional_driver,
-            "hit_and_run": count_hit_and_run,
-            "victim_has_severe_injury": count_victim_has_severe_injury,
-            "weather_was_clear": count_weather_was_clear,
-        }
-
-        return success_response(data=stats_data, message='成功')
-    else:
-        return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
+    return success_response(data=stats_data, message='成功')
 
 
 @api_view(['POST'])
