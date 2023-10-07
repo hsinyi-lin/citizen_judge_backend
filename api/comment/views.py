@@ -46,7 +46,7 @@ def add_comment(request):
         is_prior_record = data.get('is_prior_record')
         is_emotional_dispute = data.get('is_emotional_dispute')
         is_intentional = data.get('is_intentional')
-        CommentTheft.objects.create(comment=comment, is_attempted=is_attempted, is_child_victim=is_child_victim,
+        CommentHomicide.objects.create(comment=comment, is_attempted=is_attempted, is_child_victim=is_child_victim,
                                     is_family_relation=is_family_relation, is_mentally_ill=is_mentally_ill, is_money_dispute=is_money_dispute,
                                     is_prior_record=is_prior_record,is_emotional_dispute=is_emotional_dispute,
                                     is_intentional=is_intentional, month=month)
@@ -59,7 +59,7 @@ def add_comment(request):
         is_multi_victims = data.get('is_multi_victims')
         is_due_to_hardship = data.get('is_due_to_hardship')
         is_property_damaged = data.get('is_property_damaged')
-        CommentTheft.objects.create(comment=comment, is_victim_injured=is_victim_injured, is_group_crime=is_group_crime,
+        CommentRobbery.objects.create(comment=comment, is_victim_injured=is_victim_injured, is_group_crime=is_group_crime,
                                     is_weapon_used=is_weapon_used, has_prior_record=has_prior_record,
                                     is_planned=is_planned, is_multi_victims=is_multi_victims,
                                     is_due_to_hardship=is_due_to_hardship, is_property_damaged=is_property_damaged, month=month)
@@ -72,7 +72,7 @@ def add_comment(request):
         hit_and_run = data.get('hit_and_run')
         victim_has_severe_injury = data.get('victim_has_severe_injury')
         weather_was_clear = data.get('weather_was_clear')
-        CommentTheft.objects.create(comment=comment, has_driving_license=has_driving_license, is_group_crime=has_passengers,
+        CommentDriving.objects.create(comment=comment, has_driving_license=has_driving_license, has_passengers=has_passengers,
                                     affected_traffic_safety=affected_traffic_safety, caused_property_damage=caused_property_damage,
                                     is_professional_driver=is_professional_driver, hit_and_run=hit_and_run,
                                     victim_has_severe_injury=victim_has_severe_injury, weather_was_clear=weather_was_clear, month=month)
@@ -739,4 +739,4 @@ def month(request):
     # 將字典按照鍵值排序
     sorted_month_counter = OrderedDict(sorted(month_counter.items()))
 
-    return success_response(data=sorted_month_counter, message='成功')
+    return success_response(data=sorted_month_counter)
