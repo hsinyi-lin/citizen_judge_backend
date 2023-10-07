@@ -15,6 +15,6 @@ urlpatterns = [
     path('delete_dislike/', delete_dislike, name='delete_dislike'),
     path('likes/', likes, name='likes'),
     path('dislikes/', dislikes, name='dislikes'),
-    path('theft_feature/', theft_feature, name='theft_feature'),
-    path('theft_month/', theft_month, name='theft_month')
+    path('feature/', feature, name='feature'),
+    path('month/', month, name='month')
 ]
