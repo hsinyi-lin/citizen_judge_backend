@@ -595,32 +595,44 @@ def feature(request):
 
 
 @api_view(['POST'])
-def theft_month(request):
+def month(request):
     data = request.data
     verdict_id = data.get('verdict_id')
+    crime_id = data.get('crime_id')
 
     comments = Comment.objects.filter(verdict_id=verdict_id)
-
-    # 計算comments的資料筆數
     num_comments = comments.count()
 
-    if num_comments > 5:
-        # 初始化計數器
-        month_data = []
-
-        for comment in comments:
-            theft = CommentTheft.objects.get(comment_id=comment)
-
-            # 將 month 屬性添加到資料中
-            month_data.append(theft.month)  # 假設 CommentTheft 物件有 month 屬性
-
-        # 使用 Counter 計算每個月份出現的次數
-        month_counter = Counter(month_data)
-
-        # 將字典按照鍵值排序
-        sorted_month_counter = OrderedDict(sorted(month_counter.items()))
-
-        return success_response(data=sorted_month_counter, message='成功')
-    else:
+    # 計算comments的資料筆數
+    if num_comments <= 5:
         # 筆數不足 5 筆，回傳失敗訊息
         return error_response(message='資料不足', status_code=status.HTTP_400_BAD_REQUEST)
+
+    month_data = []
+
+    for comment in comments:
+        if crime_id == 1:  # theft
+            theft = CommentTheft.objects.get(comment_id=comment)
+            month_data.append(theft.month)  # 假設 CommentTheft 物件有 month 屬性
+
+        elif crime_id == 2:  # homicide
+            homicide = CommentHomicide.objects.get(comment_id=comment)
+            month_data.append(homicide.month)
+
+        elif crime_id == 3:  # robbery
+            robbery = CommentRobbery.objects.get(comment_id=comment)
+            month_data.append(robbery.month)
+
+        elif crime_id == 4:  # driving
+            driving_incident = CommentDriving.objects.get(comment_id=comment)
+            month_data.append(driving_incident.month)
+
+        # TODO: 如果還有其他犯罪類型，可以在這裡繼續加
+
+    # 使用 Counter 計算每個月份出現的次數
+    month_counter = Counter(month_data)
+
+    # 將字典按照鍵值排序
+    sorted_month_counter = OrderedDict(sorted(month_counter.items()))
+
+    return success_response(data=sorted_month_counter, message='成功')
