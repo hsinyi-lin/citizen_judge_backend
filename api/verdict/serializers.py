@@ -32,9 +32,11 @@ class CustomVerdictSerializer(VerdictSerializer):
     laws = serializers.SerializerMethodField()
     recommendations = serializers.SerializerMethodField()
 
+    month = serializers.SerializerMethodField()
+
     class Meta(VerdictSerializer.Meta):
         fields = VerdictSerializer.Meta.fields + ['sub_title', 'ver_title', 'incident', 'incident_lite',
-                                                  'result', 'url', 'create_time', 'laws', 'recommendations']
+                                                  'result', 'url', 'create_time', 'laws', 'recommendations','month']
 
     def get_incident(self, obj):
         return obj.incident.split('\n')
@@ -46,6 +48,16 @@ class CustomVerdictSerializer(VerdictSerializer):
         if obj.laws is None:
             return obj.laws
         return obj.laws.split(',')
+
+    def get_month(self, obj):
+        if obj.crime_id == 1:
+            return TheftFeature.objects.get(id=obj.id).month
+        elif obj.crime_id == 2:
+            return HomicideFeature.objects.get(id=obj.id).month
+        elif obj.crime_id == 3:
+            return RobberyFeature.objects.get(id=obj.id).month
+        elif obj.crime_id == 4:
+            return DrivingFeature.objects.get(id=obj.id).month
 
     def get_recommendations(self, obj):
         email = self.context.get('email')
@@ -106,3 +118,4 @@ class CustomVerdictSerializer(VerdictSerializer):
         serializer = VerdictSerializer(verdicts, many=True)
 
         return serializer.data
+
