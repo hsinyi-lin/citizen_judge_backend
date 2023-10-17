@@ -163,19 +163,17 @@ def crime_trend(request):
     if crime_id == 1:
         Feature = TheftFeature
         fields = Feature._meta.get_fields()[1:-1]
-        data_cnt = Feature.objects.all().count()
     elif crime_id == 2:
         Feature = HomicideFeature
         fields = Feature._meta.get_fields()[1:-3]
-        data_cnt = Feature.objects.all().count()
     elif crime_id == 3:
         Feature = RobberyFeature
         fields = Feature._meta.get_fields()[1:-3]
-        data_cnt = Feature.objects.all().count()
     elif crime_id == 4:
         Feature = DrivingFeature
         fields = Feature._meta.get_fields()[1:-3]
-        data_cnt = Feature.objects.all().count()
+
+    data_cnt = Feature.objects.all().count()
 
     # 所有欄位的總和
     column_totals = {}
