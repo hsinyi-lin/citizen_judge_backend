@@ -166,7 +166,7 @@ def get_comments(request):
                 "month": theft.month,
                 "replies": reply_data
             }
-        elif crime_id == 2:
+        elif crime_id == '2':
             homicide = CommentHomicide.objects.get(comment_id=comment)
             reply_data = [
                 {
@@ -198,7 +198,7 @@ def get_comments(request):
                 "month": homicide.month,
                 "replies": reply_data
             }
-        elif crime_id == 3:
+        elif crime_id == '3':
             robbery = CommentRobbery.objects.get(comment_id=comment)
             reply_data = [
                 {
@@ -230,7 +230,7 @@ def get_comments(request):
                 "month": robbery.month,
                 "replies": reply_data
             }
-        elif crime_id == 4:
+        elif crime_id == '4':
             driving = CommentDriving.objects.get(comment_id=comment)
             reply_data = [
                 {
