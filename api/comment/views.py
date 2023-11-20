@@ -435,21 +435,23 @@ def add_like(request):
     comment_id = data.get('comment_id')
     email = request.user_id
 
+    # 確認是否有提供comment_id
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
 
-    dislike = CommentDislike.objects.get(comment_id=comment_id, email_id=email)
-    if dislike:
-        dislike.delete()
+    # 檢查comment_id是否存在於Comment資料表中
+    if not Comment.objects.filter(id=comment_id).exists():
+        return error_response(message='找不到指定的評論', status_code=status.HTTP_404_NOT_FOUND)
 
+    # 嘗試創建一個新的CommentLike記錄
     try:
         comment_like, created = CommentLike.objects.get_or_create(comment_id=comment_id, email_id=email)
         if created:
             return success_response(message='成功')
         else:
             return error_response(message='CommentLike對象已存在', status_code=status.HTTP_409_CONFLICT)
-    except ObjectDoesNotExist:
-        return error_response(message='無法創建CommentLike對象', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return error_response(message=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -458,21 +460,23 @@ def add_dislike(request):
     comment_id = data.get('comment_id')
     email = request.user_id
 
+    # 確認是否有提供comment_id
     if not comment_id:
         return error_response(message='沒有回傳comment_id', status_code=status.HTTP_400_BAD_REQUEST)
 
-    like = CommentLike.objects.get(comment_id=comment_id, email_id=email)
-    if like:
-        like.delete()
+    # 檢查comment_id是否存在於Comment資料表中
+    if not Comment.objects.filter(id=comment_id).exists():
+        return error_response(message='找不到指定的評論', status_code=status.HTTP_404_NOT_FOUND)
 
+    # 嘗試創建一個新的CommentLike記錄
     try:
         comment_dislike, created = CommentDislike.objects.get_or_create(comment_id=comment_id, email_id=email)
         if created:
             return success_response(message='成功')
         else:
-            return error_response(message='CommentDislike對象已存在', status_code=status.HTTP_409_CONFLICT)
-    except ObjectDoesNotExist:
-        return error_response(message='無法創建CommentDislike對象', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return error_response(message='CommentLike對象已存在', status_code=status.HTTP_409_CONFLICT)
+    except Exception as e:
+        return error_response(message=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['DELETE'])
